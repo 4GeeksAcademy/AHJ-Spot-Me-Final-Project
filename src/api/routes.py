@@ -1,15 +1,14 @@
 """
 This module takes care of starting the API Server, Loading the DB and Adding the endpoints
 """
+from flask_jwt_extended import create_access_token
 from flask import Flask, request, jsonify, url_for, Blueprint
-from api. models import db, User, Match
-#from api. models import db, User, Preferences, Match, TrainingSessions, UserFeedback, Report
+from api.models import db, User
 from api.utils import generate_sitemap, APIException
 from flask_cors import CORS
-from datetime import datetime
-
-
-
+from api.db_functions import create_user, get_user_by_google_id
+from api.google_auth import verify_google_token
+from flask_jwt_extended import JWTManager
 
 api = Blueprint('api', __name__)
 
@@ -17,138 +16,85 @@ api = Blueprint('api', __name__)
 CORS(api)
 
 
+@api.route("/auth-google", methods=["POST"])
+def google_login():
+    data = request.json
+    token = data.get("token")
+
+    # Step 1: Verify Google Token
+    user_info = verify_google_token(token)
+    if not user_info:
+        return jsonify({"error": "Invalid Google token"}), 400
+
+    # Extract relevant info from the token
+    google_id = user_info["sub"]  # Unique identifier for the Google account
+    email = user_info["email"]
+
+    # Step 2: Check if user already exists in database (use your database logic here)
+    # Assuming a function `get_user_by_google_id` checks if user exists
+    user = get_user_by_google_id(google_id)
+    if not user:
+        # Create new user if they don't exist
+        user = create_user(email=email, google_id=google_id)
+
+    # Step 3: Generate a JWT token for the user
+    access_token = create_access_token(identity=user["id"])
+
+    return jsonify(
+        access_token=access_token
+    )
+
+@api.route('/matches', methods=['POST'])
+@jwt_required()
+def create_match():
+    data = request.json
+    new_match = Match(
+        user_1id=data['user_1id'],
+        user_2id=data['user_2id'],
+        is_accepted=data.get('is_accepted', False),
+        last_interaction=datetime.utcnow()
+    )
+    db.session.add(new_match)
+    db.session.commit()
+    return jsonify(new_match.to_dict()), 201
 
 
+@api.route('/matches', methods=['GET'])
+@jwt_required()
+def get_matches():
+    matches = Match.query.all()
+    return jsonify([match.to_dict() for match in matches]), 200
 
 
-@api.route('/hello', methods=['POST', 'GET'])
-def handle_hello():
+@api.route('/matches/<int:match_id>', methods=['GET'])
+@jwt_required()
+def get_match(match_id):
+    match = Match.query.get(match_id)
+    if match is None:
+        return jsonify({"error": "Match not found"}), 404
+    return jsonify(match.to_dict()), 200
 
-    response_body = {
-        "message": "Hello! I'm a message that came from the backend, check the network tab on the google inspector and you will see the GET request"
-    }
+@api.route('/user/matches', methods=['GET'])
+@jwt_required()
+def get_user_matches():
+    user_id = get_jwt_identity()  
 
-    return jsonify(response_body), 200
-
-@api.route('/users', methods=['GET'])
-def get_all_users():
-    users= User.query.all()
-    serialized_users = [user.serialize() for user in users]
-    response_body = {
-        "message": "Here's a list of all users", "users": serialized_users 
-    }
-
-    return jsonify(response_body), 200
-
-
-@api.route("/users/<int:user_id>", methods= ["GET"])
-def get_user_info(user_id):
-    user= User.query.get(user_id)
-    if user is None:
-        return jsonify({
-            "success": False,
-            "message": "user not found",
-            "error": "USER_NOT_FOUND",
-
-        }), 404
     
-    return jsonify({
-        "success": True,
-        "message": "user retrieve successfuly",
-        "data": user.serialize()
-    }), 200
+    matches = Match.query.filter(
+        (Match.user_id1 == user_id) | (Match.user_id2 == user_id)
+    ).all()
 
-# @api.route("/users/<int:user_id>/preferences", methods= ["GET", "POST"])
-# def handle_preferences(user_id):
-#     if request.method == "GET":
-#         prefs = Preferences.query.filter_by(user_id = user_id).first()
-#         if not prefs:
-#             return jsonify({"message":"preferences not found"}), 404
-#         return jsonify(prefs.serialize()), 200
+    matches_data = [match.to_dict() for match in matches]
     
-#     data = request.get_json()
-#     prefs = Preferences.query.filter_by(user_id = user_id).first()
+    return jsonify(matches_data), 200
 
-#     if prefs:
-#         #update existing preferences 
-#         for key, value in data.items():
-#             setattr(prefs, key, value)
 
-#     else: 
-#         #create new preferences
-#         prefs = Preferences(user_id = user_id, **data)
-#         db.session.add(prefs)
 
-#     db.session.commit()
-#     return jsonify(prefs.serialize()), 200
 
-# api.route("/feedback", methods =["POST"])
-# def create_feedback():
-#     data = request.get_json(),
-#     required_fields =["user_id", "match_id", "rating"]
 
-#     if not all(field in data for field in required_fields):
-#         return jsonify({"message": "missing required fields"}), 400
-    
-#     new_feedback = UserFeedback(
-#         user_id = data["user_id"],
-#         match_id = data["match_id"],
-#         rating = data ["rating_id"],
-#         comment = data.get("comments"),
-#         submitted_on = datetime.utcnow()
-#     )
 
-#     db.session.add(new_feedback)
-#     db.session.commit()
-#     return jsonify(new_feedback.serialize()), 201
-    
-# api.route("/reports", methods =["POST"])
-# def create_report():
-#     data = request.get_json(),
-#     required_fields =["reported_user_id", "reporter_user_id", "reason"]
 
-#     if not all(field in data for field in required_fields):
-#         return jsonify({"message": "missing required fields"}), 400
-    
-#     new_report = Report(
-#         reported_by_id = data["reported_by_id"],
-#         reported_user_id = data["reported_user_id"],
-#         reason = data["reason"],
-#         report_description = data.get("report_description"),
-#         reported_on = datetime.utcnow(),
-#         is_resolved = False
 
-#     )
 
-#     db.session.add(new_report)
-#     db.session.commit()
-#     return jsonify(new_report.serialize()), 201
 
-# api.route("/reports/<int:report_id>/resolved", methods= ["PUT"])
-# def resolved_report(report_id):
-#     report = Report.query.get(report_id)
 
-#     if report is None:
-#         return jsonify({"message": "REPORT_NOT_FOUND"}), 404
-    
-#     report.is_resolved = True
-#     db.session.commit()
-
-#     return jsonify({"data":report.serialize()}), 200
-
-# api.route("/reports/<int:report_id>", methods= ["DELETE"])
-# def delete_report(report_id):
-#     report = Report.query.get(report_id)
-
-#     if report is None:
-#         return jsonify({"message": "REPORT_NOT_FOUND"}), 404
-    
-#     try:
-#         db.session(report)
-#         db.session.commit()
-#         return jsonify({"message": "report deleted"}), 200
-    
-#     except Exception:
-#         db.session.rollback()
-#         return jsonify({"message": "error deleting report"}), 500
-    

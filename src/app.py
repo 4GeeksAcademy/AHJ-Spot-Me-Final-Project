@@ -2,14 +2,16 @@
 This module takes care of starting the API Server, Loading the DB and Adding the endpoints
 """
 import os
-from flask import Flask, request, jsonify, url_for, send_from_directory
+from flask import Flask, jsonify, send_from_directory
 from flask_migrate import Migrate
-from flask_swagger import swagger
 from api.utils import APIException, generate_sitemap
+from flask_jwt_extended import JWTManager
 from api.models import db
 from api.routes import api
 from api.admin import setup_admin
 from api.commands import setup_commands
+from api.blacklist import blacklist
+from api.match import api as match_api
 
 # from models import Person
 
@@ -30,6 +32,7 @@ else:
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 MIGRATE = Migrate(app, db, compare_type=True)
 db.init_app(app)
+jwt = JWTManager(app)
 
 # add the admin
 setup_admin(app)
@@ -40,8 +43,12 @@ setup_commands(app)
 # Add all endpoints form the API with a "api" prefix
 app.register_blueprint(api, url_prefix='/api')
 
-# Handle/serialize errors like a JSON object
+@jwt.token_in_blocklist_loader # Runs every time a private request is made
+def check_if_token_in_blacklist(_, jwt_payload):
+    jti = jwt_payload['jti']
+    return jti in blacklist
 
+# Handle/serialize errors like a JSON object
 
 @app.errorhandler(APIException)
 def handle_invalid_usage(error):
