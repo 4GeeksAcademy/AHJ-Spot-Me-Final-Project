@@ -1,33 +1,33 @@
 // src/pages/Profile2.js
 import React, { useEffect, useState } from 'react';
-import './profile2.css'; 
+import './profile2.css';
 
 const Profile2 = () => {
     const [matches, setMatches] = useState([]);
     const [error, setError] = useState(null);
-
-    useEffect(() => {
-        const fetchMatches = async () => {
-            try {
-                const token = localStorage.getItem('token'); // Assuming JWT is stored in localStorage
-                const response = await fetch('/api/matches', {
-                    method: 'GET',
-                    headers: {
-                        'Authorization': `Bearer ${token}`
-                    }
-                });
-
-                if (!response.ok) {
-                    throw new Error('Failed to fetch matches');
+    const fetchMatches = async () => {
+        try {
+            const token = localStorage.getItem('token'); // Assuming JWT is stored in localStorage
+            const response = await fetch(process.env.BACKEND_URL + '/api/matches', {
+                method: 'GET',
+                headers: {
+                    'Authorization': `Bearer ${token}`
                 }
+            });
 
-                const data = await response.json();
-                setMatches(data);
-            } catch (error) {
-                console.error('Error fetching matches:', error);
-                setError('Could not load matches. Please try again later.');
+            if (!response.ok) {
+                throw new Error('Failed to fetch matches');
             }
-        };
+
+            const data = await response.json();
+            setMatches(data);
+        } catch (error) {
+            console.error('Error fetching matches:', error);
+            setError('Could not load matches. Please try again later.');
+        }
+    };
+    useEffect(() => {
+
 
         fetchMatches();
     }, []);

@@ -1,7 +1,7 @@
   
 import os
 from flask_admin import Admin
-from .models import db, User, DayOfWeek, TimeOfDay, Gender
+from .models import db, User, DayOfWeek, TimeOfDay, Gender, Match
 from flask_admin.contrib.sqla import ModelView
 
 def setup_admin(app):
@@ -15,6 +15,7 @@ def setup_admin(app):
     admin.add_view(ModelView(Gender, db.session))
     admin.add_view(ModelView(DayOfWeek, db.session))
     admin.add_view(ModelView(TimeOfDay, db.session))
+    admin.add_view(ModelView(Match, db.session))
 
     # You can duplicate that line to add mew models
     # admin.add_view(ModelView(YourModelName, db.session))

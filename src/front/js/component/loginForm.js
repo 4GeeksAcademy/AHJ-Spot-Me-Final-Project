@@ -1,8 +1,12 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useContext } from "react";
+import {Context} from "../store/appContext"
+import { useNavigate } from "react-router-dom";
 
 const LoginForm = () => {
-    const [username, setUsername] = useState("");
+    const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
+    const{store, actions}=useContext(Context)
+    const navigate=useNavigate()
 
     // Handle Google Login Response
     const handleGoogleLogin = async (response) => {
@@ -41,23 +45,14 @@ const LoginForm = () => {
     }, []);
 
     // Handle traditional form submission
-    const handleFormSubmit = (event) => {
+    const handleFormSubmit = async(event) => {
         event.preventDefault();
-        fetch("/api/login", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ username, password })
-        })
-        .then((res) => res.json())
-        .then((data) => {
-            if (data.success) {
-                console.log("Login successful");
-                // Redirect or perform any action after successful login
-            } else {
-                alert("Login failed. Please check your credentials.");
-            }
-        })
-        .catch((error) => console.error("Error during login:", error));
+        let success=await actions.login(email,password)
+        if (!success){
+            alert("login failed please try again later")
+        } else {
+            navigate("/")
+        }
     };
 
     return (
@@ -67,13 +62,13 @@ const LoginForm = () => {
                     <h5 className="card-title text-center">Login</h5>
                     <form id="loginForm" onSubmit={handleFormSubmit}>
                         <div className="mb-3">
-                            <label htmlFor="user" className="form-label">User Name</label>
+                            <label htmlFor="user" className="form-label">Email</label>
                             <input
                                 type="text"
                                 className="form-control"
                                 id="user"
-                                value={username}
-                                onChange={(e) => setUsername(e.target.value)}
+                                value={email}
+                                onChange={(e) => setEmail(e.target.value)}
                                 required
                             />
                         </div>

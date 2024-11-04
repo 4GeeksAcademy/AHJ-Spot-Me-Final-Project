@@ -11,7 +11,7 @@ from api.routes import api
 from api.admin import setup_admin
 from api.commands import setup_commands
 from api.blacklist import blacklist
-from api.match import api as match_api
+
 
 # from models import Person
 
@@ -54,9 +54,13 @@ def check_if_token_in_blacklist(_, jwt_payload):
 def handle_invalid_usage(error):
     return jsonify(error.to_dict()), error.status_code
 
+
+
+# Setup the Flask-JWT-Extended extension
+app.config["JWT_SECRET_KEY"] = "super-secret"  # Change this!
+jwt = JWTManager(app)
+
 # generate sitemap with all your endpoints
-
-
 @app.route('/')
 def sitemap():
     if ENV == "development":

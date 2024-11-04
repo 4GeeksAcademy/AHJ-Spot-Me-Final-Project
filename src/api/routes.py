@@ -1,14 +1,14 @@
 """
 This module takes care of starting the API Server, Loading the DB and Adding the endpoints
 """
-from flask_jwt_extended import create_access_token
+from flask_jwt_extended import create_access_token, jwt_required, get_jwt_identity
 from flask import Flask, request, jsonify, url_for, Blueprint
-from api.models import db, User
+from api.models import db, User, Match
 from api.utils import generate_sitemap, APIException
 from flask_cors import CORS
 from api.db_functions import create_user, get_user_by_google_id
 from api.google_auth import verify_google_token
-from flask_jwt_extended import JWTManager
+
 
 api = Blueprint('api', __name__)
 
@@ -43,6 +43,35 @@ def google_login():
     return jsonify(
         access_token=access_token
     )
+@api.route('/login', methods=['POST'])
+def login():
+    data=request.json
+    email=data.get("email")
+    password=data.get("password")
+    if None in[email, password]:
+        return jsonify({"msg":"some required fields are missing"}), 400
+    user=User.query.filter_by(email=email).first()
+    if user is None:
+        return jsonify({"msg":"user not found"}), 404
+    if password != user.password:
+        return jsonify({"msg":"incorrect password"}), 401
+
+    access_token = create_access_token(identity=user.id)
+
+    return jsonify(
+        access_token=access_token
+    )
+
+@api.route('/matches', methods=['GET'])
+@jwt_required()
+def get_matches():
+    user_id = get_jwt_identity()
+    matches = Match.query.all()
+    serialized_matches = []
+    for match in matches:
+        if user_id == match.user1_id or user_id == match.user2_id:
+            serialized_matches.append(match)
+    return jsonify({"msg":"success here is your list of matches","matches":serialized_matches}), 200
 
 @api.route('/matches', methods=['POST'])
 @jwt_required()
@@ -59,11 +88,7 @@ def create_match():
     return jsonify(new_match.to_dict()), 201
 
 
-@api.route('/matches', methods=['GET'])
-@jwt_required()
-def get_matches():
-    matches = Match.query.all()
-    return jsonify([match.to_dict() for match in matches]), 200
+
 
 
 @api.route('/matches/<int:match_id>', methods=['GET'])

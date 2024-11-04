@@ -92,3 +92,13 @@ class Match(db.Model):
 
     def __repr__(self):
         return f'<Match between User {self.user1_id} and User {self.user2_id}>'
+    def serialize(self):
+        return{
+            "id":self.id,
+            "user1_id":self.user1_id,
+            "user2_id":self.user2_id,
+            "is_accepted":self.is_accepted,
+            "created_on":self.created_on,
+            "last_interaction":self.last_interaction
+
+        }
