@@ -1,50 +1,17 @@
 from flask_sqlalchemy import SQLAlchemy
-from sqlalchemy import Column, ForeignKey, Integer, String, Boolean, DateTime
-from sqlalchemy.orm import relationship
+from eralchemy2 import render_er
 import datetime
-
-
-
 db = SQLAlchemy()
 
-# class User(db.Model):
-#     id = db.Column(db.Integer, primary_key=True)
-#     email = db.Column(db.String(120), unique=True, nullable=False)
-#     password = db.Column(db.String(80), unique=False, nullable=False)
-#     is_active = db.Column(db.Boolean(), unique=False, nullable=False)
-#     longitude = db.Column(db.Float, nullable=False)
-#     latitude = db.Column(db.Float, nullable=False)
-
-#     gender = db.Column(db.String(80), nullable=False)
-#     def __repr__(self):
-#         return f'<User {self.email}>'
-
-#     def serialize(self):
-#         return {
-#             "id": self.id,
-#             "email": self.email,
-#             "longitude": self.longitude,
-#             "latitude": self.latitude,
-#             "gender": self.gender,
-            # do not serialize the password, its a security breach
-        # }
-    
-
-# Gender Table
-class Gender(db.Model):
-    __tablename__ = 'gender'
+# Exercise/Sports Interests Table
+class exercise_interests(db.Model):
+    __tablename__ = 'exercise_interests'
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String, unique=True, nullable=False)
 
-# Day of Week Table
-class DayOfWeek(db.Model):
-    __tablename__ = 'day_of_week'
-    id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String, unique=True, nullable=False)
-
-# Time of Day Table
-class TimeOfDay(db.Model):
-    __tablename__ = 'time_of_day'
+# Available Gyms Table
+class gym_preference(db.Model):
+    __tablename__ = 'gym_preference'
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String, unique=True, nullable=False)
 
@@ -52,37 +19,42 @@ class TimeOfDay(db.Model):
 class User(db.Model):
     __tablename__ = 'user'
     id = db.Column(db.Integer, primary_key=True)
+    google_id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String, nullable=False)
     email = db.Column(db.String, unique=True, nullable=False)
     password_hash = db.Column(db.String, nullable=False)
     age = db.Column(db.Integer)
-    gender_id = db.Column(db.Integer, ForeignKey('gender.id'))
-    preferred_day_id = db.Column(db.Integer, ForeignKey('day_of_week.id'))
-    preferred_time_id = db.Column(db.Integer, ForeignKey('time_of_day.id'))
+    gender_id = db.Column(db.Integer) 
+    exercise_interests = db.Column(db.Integer, db.ForeignKey('exercise_interests.id'))
+    gym_preference = db.Column(db.Integer, db.ForeignKey('gym_preference.id'))
+    preferred_day_id = db.Column(db.Integer) 
+    preferred_time_id = db.Column(db.Integer)
     profile_image = db.Column(db.String)
     fitness_level = db.Column(db.String)  # Enum removed, you can replace with a Foreign Key if needed
     gym_membership = db.Column(db.String)
     preferred_spotting_style = db.Column(db.String)  # Enum removed, you can replace with a Foreign Key if needed
     bio = db.Column(db.String)
-    date_joined = db.Column(db.DateTime, default=datetime.datetime.utcnow)
-    is_verified = db.Column(db.Boolean, default=False)
-
-    gender = relationship("Gender")
-    preferred_day = relationship("DayOfWeek")
-    preferred_time = relationship("TimeOfDay")
-    matches = relationship("Match", foreign_keys="[Match.user1_id]", back_populates="user1")
+    exercise_interest = db.relationship("exercise_interests")
+    gym_preference = db.relationship("gym_preference")
+    matches = db.relationship("Match", foreign_keys="[Match.user1_id]", back_populates="user1")
 
 # Match Table
 class Match(db.Model):
     __tablename__ = 'match'
     id = db.Column(db.Integer, primary_key=True)
-    user1_id = db.Column(db.Integer, ForeignKey('user.id'))
-    user2_id = db.Column(db.Integer, ForeignKey('user.id'))
+    user1_id = db.Column(db.Integer, db.ForeignKey('user.id'))
+    user2_id = db.Column(db.Integer, db.ForeignKey('user.id'))
     is_accepted = db.Column(db.Boolean, default=False)
     created_on = db.Column(db.DateTime, default=datetime.datetime.utcnow)
     last_interaction = db.Column(db.DateTime)
 
-    user1 = relationship("User", foreign_keys=[user1_id], back_populates="matches")
-    user2 = relationship("User", foreign_keys=[user2_id])
+    user1 = db.relationship("User", foreign_keys=[user1_id], back_populates="matches")
+    user2 = db.relationship("User", foreign_keys=[user2_id])
 
-
+# Draw from SQLAlchemy db.Model
+try:
+    result = render_er(db.Model, 'diagram.png')
+    print("Success! Check the diagram.png file")
+except Exception as e:
+    print("There was a problem generating the diagram")
+    raise e
