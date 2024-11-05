@@ -9,8 +9,6 @@ verify_ssl = true
 flask = "*"
 sqlalchemy = "==1.4.46"
 flask-sqlalchemy = "*"
-eralchemy2 = "*"
-flask-jwt-extended = "*"
 flask-migrate = "*"
 flask-swagger = "*"
 psycopg2-binary = "*"
@@ -20,6 +18,9 @@ gunicorn = "*"
 cloudinary = "*"
 flask-admin = "*"
 typing-extensions = "*"
+flask-jwt-extended = "==4.6.0"
+wtforms = "==3.1.2"
+
 
 [requires]
 python_version = "3.10"

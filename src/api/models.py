@@ -1,5 +1,5 @@
 from flask_sqlalchemy import SQLAlchemy
-from eralchemy2 import render_er
+
 import datetime
 db = SQLAlchemy()
 
@@ -52,9 +52,4 @@ class Match(db.Model):
     user2 = db.relationship("User", foreign_keys=[user2_id])
 
 # Draw from SQLAlchemy db.Model
-try:
-    result = render_er(db.Model, 'diagram.png')
-    print("Success! Check the diagram.png file")
-except Exception as e:
-    print("There was a problem generating the diagram")
-    raise e
+
