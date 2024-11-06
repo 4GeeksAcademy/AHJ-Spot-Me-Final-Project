@@ -10,8 +10,8 @@ from flask_cors import CORS
 from datetime import datetime
 from flask_jwt_extended import jwt_required, get_jwt_identity, create_access_token, get_jwt
 from api.blacklist import blacklist
-
-
+from api.db_functions import get_user_by_google_id, create_user
+from api.google_auth import verify_google_token
 
 api = Blueprint('api', __name__)
 
@@ -47,99 +47,166 @@ def google_login():
         access_token=access_token
     )
 
+# @api.route('/signup', methods=['POST'])
+# def sign_up():
+#     data = request.json
+#     email = data.get("email")
+#     password_hash = data.get("password")
+#     full_name = data.get("full_name")
+#     state = data.get("state")
+#     city = data.get("city")
+
+#     if User.query.filter_by(email=email).first():
+#         return jsonify({"error": "Email already exists"}), 400
+
+#     new_user = User(
+#        email = email,
+#        password_hash = generate_password_hash(password_hash), 
+#        name = full_name,
+#        state = state,
+#        city = city
+#     )
+#     db.session.add(new_user)
+#     db.session.commit()
+    
+
+#     response_body = {
+#         "message": "User successfully created",
+#         "user": new_user.serialize() 
+#     }
+
+#     return jsonify(response_body), 201
+
 @api.route('/signup', methods=['POST'])
 def sign_up():
-    data = request.json
-    email = data.get("email")
-    password = data.get("password")
-    full_name = data.get("full_name")
-    state = data.get("state")
-    city = data.get("city")
+    try:
+        data = request.json
+        
+        # Check if required data exists
+        if not data:
+            return jsonify({"error": "No data provided"}), 400
+        
+        # Get data from request
+        email = data.get("email")
+        password = data.get("password")
+        full_name = data.get("full_name")
+        state = data.get("state")
+        city = data.get("city")
+        
+        # Validate required fields
+        if not email or not password or not full_name:
+            return jsonify({"error": "Required fields missing (email, password, full_name)"}), 400
 
-    if User.query.filter_by(email=email).first():
-        return jsonify({"error": "Email already exists"}), 400
+        # Check if user already exists
+        if User.query.filter_by(email=email).first():
+            return jsonify({"error": "Email already exists"}), 400
 
-    new_user = User(
-       email = email,
-       password = generate_password_hash(password), 
-       full_name = full_name,
-       state = state,
-       city = city
-    )
-    db.session.add(new_user)
-    db.session.commit()
-    
+        # Create new user
+        new_user = User(
+            email=email,
+            password_hash=generate_password_hash(password),
+            name=full_name,
+            state=state if state else None,
+            city=city if city else None
+        )
+        
+        # Add and commit to database
+        db.session.add(new_user)
+        db.session.commit()
 
-    response_body = {
-        "message": "User successfully created",
-        "user": new_user.serialize() 
-    }
+        # Create response with just the basic user data
+        response_body = {
+            "message": "User successfully created",
+            "user": new_user.serialize()  # Using basic serialization without relations
+        }
 
-    return jsonify(response_body), 201
+        return jsonify(response_body), 201
 
-@api.route('/login', methods=['POST'])
-def login():
-    data=request.json
-    email=data.get("email")
-    password=data.get("password")
-    if None in[email, password]:
-        return jsonify({"msg":"some required fields are missing"}), 400
-    user=User.query.filter_by(email=email).first()
-    if user is None:
+    except Exception as e:
+        # Roll back the session in case of error
+        db.session.rollback()
         return jsonify({
-            "success": False,
-            "message": "user not found",
-            "error": "USER_NOT_FOUND",
+            "error": "An error occurred while creating the user",
+            "details": str(e)
+        }), 500
 
-        }), 404
+# @api.route('/login', methods=['POST'])
+# def login():
+#     data=request.json
+#     email=data.get("email")
+#     _hash=data.get("password")
+#     if None in[email, _hash]:
+#         return jsonify({"msg":"some required fields are missing"}), 400
+#     user=User.query.filter_by(email=email).first()
+#     if user is None:
+#         return jsonify({
+#             "success": False,
+#             "message": "user not found",
+#             "error": "USER_NOT_FOUND",
+
+#         }), 404
     
-    return jsonify({
-        "success": True,
-        "message": "user retrieve successfuly",
-        "data": user.serialize()
-    }), 200
+#     return jsonify({
+#         "success": True,
+#         "message": "user retrieve successfuly",
+#         "data": user.serialize()
+#     }), 200
 
 
 
-@api.route('/login', methods=['POST'])
-def login_user():
-    request_data = request.get_json()
-    email = request_data.get("email")
-    password = request_data.get("password")
-    if None in [email, password]:
-        return jsonify({"msg": "Some requiered are missing"}), 400
-
-    user = User.query.filter_by(email=email).first()
-    if user is None: 
-        return jsonify({ "message": "The user doesnt exist"}), 404
-
-
-    if user.password==password:
-        access_token = create_access_token(identity=id)
-        return jsonify({ "access_token": access_token }), 200
-    return jsonify({"msg":"Incorrect password"}), 401
+@api.route('/api/login', methods=['POST'])
+def login():
+    try:
+        # Get data from request body
+        request_data = request.get_json()
+        
+        # Extract email and password from request
+        email = request_data.get('email')
+        password = request_data.get('password')
+        
+        # Validate required fields
+        if not email or not password:
+            return jsonify({"error": "Email and password are required"}), 400
+            
+        # Find user by email
+        user = User.query.filter_by(email=email).first()
+        
+        # Check if user exists and password is correct
+        if user and check_password_hash(user.password_hash, password):
+            # Create access token
+            access_token = create_access_token(identity=user.id)
+            return jsonify({
+                "message": "Login successful",
+                "access_token": access_token
+            }), 200
+        
+        return jsonify({"error": "Invalid email or password"}), 401
+        
+    except Exception as e:
+        print("Login error:", str(e))
+        return jsonify({"error": "An error occurred during login"}), 500
     
 
-@api.route('/signup', methods=['POST'])
-def create_user():
-    request_data = request.get_json()
-    email = request_data.get("email")
-    password = request_data.get("password")
-    if None in [email, password]:
-        return jsonify({"msg": "Some requiered are missing"}), 400
+# @api.route('/signup', methods=['POST'])
+# def create_user():
+#     request_data = request.get_json()
+#     email = request_data.get("email")
+#     password_hash = request_data.get("password")
+#     if None in [email, password_hash]:
+#         return jsonify({"msg": "Some requiered are missing"}), 400
 
-    user = User.query.filter_by(email=email).first()
-    if user: 
-        return jsonify({ "message": "The user already exist"}), 409
+#     user = User.query.filter_by(email=email).first()
+#     if user: 
+#         return jsonify({ "message": "The user already exist"}), 409
 
-    new_user = User(email=email, password=password, is_active=True)
+#     new_user = User(email=email, password_hash=password_hash, is_active=True)
 
-    db.session.add(new_user)
-    db.session.commit()
+#     db.session.add(new_user)
+#     db.session.commit()
 
    
 
-    return jsonify({ "msg": "Congrats! Your account was succesfully created." }), 201
+#     return jsonify({ "msg": "Congrats! Your account was succesfully created." }), 201
 
 #New
 @api.route('/check-profile', methods=['GET'])

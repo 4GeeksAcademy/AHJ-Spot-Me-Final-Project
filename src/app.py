@@ -4,6 +4,7 @@ This module takes care of starting the API Server, Loading the DB and Adding the
 import os
 from flask import Flask, jsonify, send_from_directory
 from flask_migrate import Migrate
+from flask_cors import CORS
 from api.utils import APIException, generate_sitemap
 from flask_jwt_extended import JWTManager
 from api.models import db
@@ -20,6 +21,9 @@ static_file_dir = os.path.join(os.path.dirname(
     os.path.realpath(__file__)), '../public/')
 app = Flask(__name__)
 app.url_map.strict_slashes = False
+
+# Add CORS configuration right after Flask app initialization
+CORS(app)
 
 # database condiguration
 db_url = os.getenv("DATABASE_URL")

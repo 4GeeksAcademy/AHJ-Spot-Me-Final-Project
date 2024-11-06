@@ -20,7 +20,7 @@ const getState = ({ getStore, getActions, setStore }) => {
 						method: "POST",
 						headers: { "Content-Type": "application/json" },
 						body: JSON.stringify({
-							email: formData.email,
+							email: formData.email.toLowerCase(),
 							password: formData.password,
 							full_name: formData.fullName,
 							state: formData.state,
@@ -28,13 +28,14 @@ const getState = ({ getStore, getActions, setStore }) => {
 						})
 					});
 					const data = await response.json();
+					
 					if (response.status === 201) {
-						// After successful signup, attempt to login
-						const loginResult = await getActions().login(formData.email, formData.password);
-						if (loginResult) {
-							return { success: true, message: "Signup successful" };
-						}
+						return { 
+							success: true, 
+							message: "Signup successful! Please login to continue." 
+						};
 					}
+					
 					return {
 						success: false,
 						message: data.error || "Signup failed"
@@ -48,11 +49,16 @@ const getState = ({ getStore, getActions, setStore }) => {
 				}
 			},
 
-			login: async () => {
+			login: async (email, password) => {
 				let response = await fetch(process.env.BACKEND_URL + "/api/login", {
 					method: "POST",
 					headers: { "Content-Type": "application/json" },
-					body: JSON.stringify({ email, password })
+					body: JSON.stringify(
+						{ 
+							email: email.toLowerCase(), 
+							password: password 
+						}
+					)
 				})
 				if (response.status != 200) {
 					let error = await response.json()
