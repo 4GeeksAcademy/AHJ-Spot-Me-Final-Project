@@ -4,13 +4,13 @@ import datetime
 db = SQLAlchemy()
 
 # Exercise/Sports Interests Table
-class exercise_interests(db.Model):
+class ExerciseInterests(db.Model):
     __tablename__ = 'exercise_interests'
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String, unique=True, nullable=False)
 
 # Available Gyms Table
-class gym_preference(db.Model):
+class GymPreference(db.Model):
     __tablename__ = 'gym_preference'
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String, unique=True, nullable=False)
@@ -19,14 +19,14 @@ class gym_preference(db.Model):
 class User(db.Model):
     __tablename__ = 'user'
     id = db.Column(db.Integer, primary_key=True)
-    google_id = db.Column(db.Integer, primary_key=True)
+    google_id = db.Column(db.String, unique=True)
     name = db.Column(db.String, nullable=False)
     email = db.Column(db.String, unique=True, nullable=False)
     password_hash = db.Column(db.String, nullable=False)
     age = db.Column(db.Integer)
     gender_id = db.Column(db.Integer) 
-    exercise_interests = db.Column(db.Integer, db.ForeignKey('exercise_interests.id'))
-    gym_preference = db.Column(db.Integer, db.ForeignKey('gym_preference.id'))
+    exercise_interests_id = db.Column(db.Integer, db.ForeignKey('exercise_interests.id'))
+    gym_preference_id = db.Column(db.Integer, db.ForeignKey('gym_preference.id'))
     preferred_day_id = db.Column(db.Integer) 
     preferred_time_id = db.Column(db.Integer)
     profile_image = db.Column(db.String)
@@ -34,8 +34,8 @@ class User(db.Model):
     gym_membership = db.Column(db.String)
     preferred_spotting_style = db.Column(db.String)  # Enum removed, you can replace with a Foreign Key if needed
     bio = db.Column(db.String)
-    exercise_interest = db.relationship("exercise_interests")
-    gym_preference = db.relationship("gym_preference")
+    exercise_interest = db.relationship("ExerciseInterests")
+    gym = db.relationship("GymPreference")
     matches = db.relationship("Match", foreign_keys="[Match.user1_id]", back_populates="user1")
 
 # Match Table
