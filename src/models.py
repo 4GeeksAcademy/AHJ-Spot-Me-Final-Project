@@ -33,6 +33,8 @@ class User(Base):
     name = Column(String, nullable=False)
     email = Column(String, unique=True, nullable=False)
     password_hash = Column(String, nullable=False)
+    # city = Column(String(100), nullable=False)
+    # state = Column(String(50), nullable=False)
     age = Column(Integer)
     gender_id = Column(Integer, ForeignKey('gender.id'))
     preferred_day_id = Column(Integer, ForeignKey('day_of_week.id'))

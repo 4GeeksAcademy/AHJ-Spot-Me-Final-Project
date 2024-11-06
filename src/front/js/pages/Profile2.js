@@ -1,6 +1,7 @@
 // src/pages/Profile2.js
 import React, { useEffect, useState } from 'react';
-import './profile2.css';
+// import './profile2.css';
+import "../../styles/profile2.css";
 
 const Profile2 = () => {
     const [matches, setMatches] = useState([]);

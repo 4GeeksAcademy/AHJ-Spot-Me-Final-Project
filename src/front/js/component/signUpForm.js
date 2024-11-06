@@ -1,14 +1,16 @@
 // src/pages/SignupForm.js
-import React, { useState } from 'react';
+import React, { useState, useContext } from 'react';
+import { Context } from '../store/appContext';
 
 const SignupForm = () => {
+    const {actions}=useContext(Context)
     const [formData, setFormData] = useState({
-        username: '',
         email: '',
         password: '',
         confirmPassword: '',
+        fullName: '',
+        state: '',
         city: '',
-        state: ''
     });
     const [error, setError] = useState('');
 
@@ -17,17 +19,25 @@ const SignupForm = () => {
         setFormData({ ...formData, [name]: value });
     };
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async(e) => {
         e.preventDefault();
-        
+
         // Basic validation
         if (formData.password !== formData.confirmPassword) {
             setError('Passwords do not match');
             return;
         }
-        
+
         setError('');
+
+        const result = await actions.signup(formData);
         
+        if (result.success) {
+            navigate('/login'); // or wherever you want to redirect after signup
+        } else {
+            setError(result.message);
+        }
+
         console.log('Form submitted:', formData);
     };
 
@@ -36,16 +46,6 @@ const SignupForm = () => {
             <h2>Sign Up</h2>
             {error && <p className="error">{error}</p>}
             <form onSubmit={handleSubmit}>
-                <div>
-                    <label>Username:</label>
-                    <input
-                        type="text"
-                        name="username"
-                        value={formData.username}
-                        onChange={handleChange}
-                        required
-                    />
-                </div>
                 <div>
                     <label>Email:</label>
                     <input
@@ -77,11 +77,11 @@ const SignupForm = () => {
                     />
                 </div>
                 <div>
-                    <label>City:</label>
+                    <label>Full Name:</label>
                     <input
                         type="text"
-                        name="city"
-                        value={formData.city}
+                        name="fullName"
+                        value={formData.fullName}
                         onChange={handleChange}
                         required
                     />
@@ -92,6 +92,16 @@ const SignupForm = () => {
                         type="text"
                         name="state"
                         value={formData.state}
+                        onChange={handleChange}
+                        required
+                    />
+                </div>
+                <div>
+                    <label>City:</label>
+                    <input
+                        type="text"
+                        name="city"
+                        value={formData.city}
                         onChange={handleChange}
                         required
                     />

@@ -1,4 +1,4 @@
-/* src/pages/SignupForm.css
+/* src/pages/SignupForm.css */
 .signup-form {
     max-width: 400px;
     margin: 0 auto;
@@ -46,4 +46,4 @@
 
 .signup-form button:hover {
     background-color: #45a049;
-} */
+}

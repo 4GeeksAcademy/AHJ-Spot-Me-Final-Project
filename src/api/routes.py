@@ -2,6 +2,7 @@
 This module takes care of starting the API Server, Loading the DB and Adding the endpoints
 """
 from flask_jwt_extended import create_access_token, jwt_required, get_jwt_identity
+from werkzeug.security import generate_password_hash, check_password_hash
 from flask import Flask, request, jsonify, url_for, Blueprint
 from api.models import db, User, Match
 from api.utils import generate_sitemap, APIException
@@ -43,6 +44,37 @@ def google_login():
     return jsonify(
         access_token=access_token
     )
+
+@api.route('/signup', methods=['POST'])
+def sign_up():
+    data = request.json
+    email = data.get("email")
+    password = data.get("password")
+    full_name = data.get("full_name")
+    state = data.get("state")
+    city = data.get("city")
+
+    if User.query.filter_by(email=email).first():
+        return jsonify({"error": "Email already exists"}), 400
+
+    new_user = User(
+       email = email,
+       password = generate_password_hash(password), 
+       full_name = full_name,
+       state = state,
+       city = city
+    )
+    db.session.add(new_user)
+    db.session.commit()
+    
+
+    response_body = {
+        "message": "User successfully created",
+        "user": new_user.serialize() 
+    }
+
+    return jsonify(response_body), 201
+
 @api.route('/login', methods=['POST'])
 def login():
     data=request.json
@@ -53,14 +85,16 @@ def login():
     user=User.query.filter_by(email=email).first()
     if user is None:
         return jsonify({"msg":"user not found"}), 404
-    if password != user.password:
-        return jsonify({"msg":"incorrect password"}), 401
+    # if password != user.password:
+    #     return jsonify({"msg":"incorrect password"}), 401
+    if not check_password_hash(user.password, password):
+        return jsonify({"message": "Incorrect password"}), 401
 
     access_token = create_access_token(identity=user.id)
 
     return jsonify(
         access_token=access_token
-    )
+    ), 200
 
 @api.route('/matches', methods=['GET'])
 @jwt_required()
