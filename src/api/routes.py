@@ -7,8 +7,10 @@ from flask import Flask, request, jsonify, url_for, Blueprint
 from api.models import db, User, Match
 from api.utils import generate_sitemap, APIException
 from flask_cors import CORS
-from api.db_functions import create_user, get_user_by_google_id
-from api.google_auth import verify_google_token
+from datetime import datetime
+from flask_jwt_extended import jwt_required, get_jwt_identity, create_access_token, get_jwt
+from api.blacklist import blacklist
+
 
 
 api = Blueprint('api', __name__)
@@ -84,76 +86,274 @@ def login():
         return jsonify({"msg":"some required fields are missing"}), 400
     user=User.query.filter_by(email=email).first()
     if user is None:
-        return jsonify({"msg":"user not found"}), 404
-    # if password != user.password:
-    #     return jsonify({"msg":"incorrect password"}), 401
-    if not check_password_hash(user.password, password):
-        return jsonify({"message": "Incorrect password"}), 401
+        return jsonify({
+            "success": False,
+            "message": "user not found",
+            "error": "USER_NOT_FOUND",
 
-    access_token = create_access_token(identity=user.id)
+        }), 404
+    
+    return jsonify({
+        "success": True,
+        "message": "user retrieve successfuly",
+        "data": user.serialize()
+    }), 200
 
-    return jsonify(
-        access_token=access_token
-    ), 200
 
-@api.route('/matches', methods=['GET'])
-@jwt_required()
-def get_matches():
-    user_id = get_jwt_identity()
-    matches = Match.query.all()
-    serialized_matches = []
-    for match in matches:
-        if user_id == match.user1_id or user_id == match.user2_id:
-            serialized_matches.append(match)
-    return jsonify({"msg":"success here is your list of matches","matches":serialized_matches}), 200
 
-@api.route('/matches', methods=['POST'])
-@jwt_required()
-def create_match():
-    data = request.json
-    new_match = Match(
-        user_1id=data['user_1id'],
-        user_2id=data['user_2id'],
-        is_accepted=data.get('is_accepted', False),
-        last_interaction=datetime.utcnow()
-    )
-    db.session.add(new_match)
+@api.route('/login', methods=['POST'])
+def login_user():
+    request_data = request.get_json()
+    email = request_data.get("email")
+    password = request_data.get("password")
+    if None in [email, password]:
+        return jsonify({"msg": "Some requiered are missing"}), 400
+
+    user = User.query.filter_by(email=email).first()
+    if user is None: 
+        return jsonify({ "message": "The user doesnt exist"}), 404
+
+
+    if user.password==password:
+        access_token = create_access_token(identity=id)
+        return jsonify({ "access_token": access_token }), 200
+    return jsonify({"msg":"Incorrect password"}), 401
+    
+
+@api.route('/signup', methods=['POST'])
+def create_user():
+    request_data = request.get_json()
+    email = request_data.get("email")
+    password = request_data.get("password")
+    if None in [email, password]:
+        return jsonify({"msg": "Some requiered are missing"}), 400
+
+    user = User.query.filter_by(email=email).first()
+    if user: 
+        return jsonify({ "message": "The user already exist"}), 409
+
+    new_user = User(email=email, password=password, is_active=True)
+
+    db.session.add(new_user)
     db.session.commit()
-    return jsonify(new_match.to_dict()), 201
 
+   
 
+    return jsonify({ "msg": "Congrats! Your account was succesfully created." }), 201
 
-
-
-@api.route('/matches/<int:match_id>', methods=['GET'])
+#New
+@api.route('/check-profile', methods=['GET'])
 @jwt_required()
-def get_match(match_id):
-    match = Match.query.get(match_id)
-    if match is None:
-        return jsonify({"error": "Match not found"}), 404
-    return jsonify(match.to_dict()), 200
+def check_profile_completeness():
+    # Get the current user based on the token
+    current_user = User.query.filter_by(id=get_jwt_identity()).first()
 
-@api.route('/user/matches', methods=['GET'])
+    if not current_user:
+        return jsonify({"msg": "User does not exist."}), 404
+
+    # Check if essential profile fields are missing
+    if not current_user.age or not current_user.name or not current_user.gender:
+        return jsonify({
+            "msg": "Profile incomplete. Please complete your profile.",
+            "profile_complete": False,
+            "missing_fields": {
+                "age": not bool(current_user.age),
+                "name": not bool(current_user.name),
+                "gender": not bool(current_user.gender),
+            }
+        }), 200
+
+    # If profile is complete
+    return jsonify({"msg": "Profile is complete.", "profile_complete": True}), 200
+
+
+@api.route('/logout', methods=['POST'])
 @jwt_required()
-def get_user_matches():
-    user_id = get_jwt_identity()  
+def logout_user():
+    jti = get_jwt()['jti'] # Get the token ID
+    blacklist.add(jti) # Invalidate the token
 
+
+
+@api.route('/edit-profile', methods=['PUT'])
+@jwt_required()
+def edit_profile():
+    request_data = request.get_json()
+    age = request_data.get("age")
+    bio = request_data.get("bio")
+    gender = request_data.get("gender")
+    name = request_data.get("name")
+    profile_picture = request.data.get("profile_picture")
+
+    #New
+    if user:
+        # Validate age
+        if age:
+            if not isinstance(age, int) or age < 0 or age > 120:
+                return jsonify({"msg": "Age must be a positive integer between 0 and 120."}), 400
+            user.age = age
+
+        # Validate bio length
+        if bio and len(bio) > 250:
+            return jsonify({"msg": "Bio must be less than 250 characters."}), 400
+        user.bio = bio
+
+        # Validate gender (assuming you have specific acceptable values)
+        if gender and gender not in ["male", "female", "other"]:
+            return jsonify({"msg": "Gender must be 'male', 'female', or 'other'."}), 400
+        user.gender = gender
+
+        # Validate name
+        if name is None:
+            return jsonify({"msg": "Name field is required."}), 400
+        user.name = name
+
+        # Validate profile picture URL format if needed
+        if profile_picture and not isinstance(profile_picture, str):
+            return jsonify({"msg": "Profile picture must be a valid URL string."}), 400
+        user.profile_picture = profile_picture
+
+
+    user = User.query.filter_by(email=get_jwt_identity()).first()
+
+    if user:
+        user.age= age
+        user.bio=bio
+        user.gender=gender
+        user.name=name 
+        user.profile_picture=profile_picture
+        db.session.commit()
+        return jsonify({ "message": "Success your profile has been updated", "user": user.serialize() }), 200
+
+    return jsonify({ "message": "The user doesnt exist"}), 404
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+# @api.route("/users/<int:user_id>/preferences", methods= ["GET", "POST"])
+# def handle_preferences(user_id):
+#     if request.method == "GET":
+#         prefs = Preferences.query.filter_by(user_id = user_id).first()
+#         if not prefs:
+#             return jsonify({"message":"preferences not found"}), 404
+#         return jsonify(prefs.serialize()), 200
     
-    matches = Match.query.filter(
-        (Match.user_id1 == user_id) | (Match.user_id2 == user_id)
-    ).all()
+#     data = request.get_json()
+#     prefs = Preferences.query.filter_by(user_id = user_id).first()
 
-    matches_data = [match.to_dict() for match in matches]
+#     if prefs:
+#         #update existing preferences 
+#         for key, value in data.items():
+#             setattr(prefs, key, value)
+
+#     else: 
+#         #create new preferences
+#         prefs = Preferences(user_id = user_id, **data)
+#         db.session.add(prefs)
+
+#     db.session.commit()
+#     return jsonify(prefs.serialize()), 200
+
+# api.route("/feedback", methods =["POST"])
+# def create_feedback():
+#     data = request.get_json(),
+#     required_fields =["user_id", "match_id", "rating"]
+
+#     if not all(field in data for field in required_fields):
+#         return jsonify({"message": "missing required fields"}), 400
     
-    return jsonify(matches_data), 200
+#     new_feedback = UserFeedback(
+#         user_id = data["user_id"],
+#         match_id = data["match_id"],
+#         rating = data ["rating_id"],
+#         comment = data.get("comments"),
+#         submitted_on = datetime.utcnow()
+#     )
 
+#     db.session.add(new_feedback)
+#     db.session.commit()
+#     return jsonify(new_feedback.serialize()), 201
+    
+# api.route("/reports", methods =["POST"])
+# def create_report():
+#     data = request.get_json(),
+#     required_fields =["reported_user_id", "reporter_user_id", "reason"]
 
+#     if not all(field in data for field in required_fields):
+#         return jsonify({"message": "missing required fields"}), 400
+    
+#     new_report = Report(
+#         reported_by_id = data["reported_by_id"],
+#         reported_user_id = data["reported_user_id"],
+#         reason = data["reason"],
+#         report_description = data.get("report_description"),
+#         reported_on = datetime.utcnow(),
+#         is_resolved = False
 
+#     )
 
+#     db.session.add(new_report)
+#     db.session.commit()
+#     return jsonify(new_report.serialize()), 201
 
+# api.route("/reports/<int:report_id>/resolved", methods= ["PUT"])
+# def resolved_report(report_id):
+#     report = Report.query.get(report_id)
 
+#     if report is None:
+#         return jsonify({"message": "REPORT_NOT_FOUND"}), 404
+    
+#     report.is_resolved = True
+#     db.session.commit()
 
+#     return jsonify({"data":report.serialize()}), 200
 
+# api.route("/reports/<int:report_id>", methods= ["DELETE"])
+# def delete_report(report_id):
+#     report = Report.query.get(report_id)
 
-
-
+#     if report is None:
+#         return jsonify({"message": "REPORT_NOT_FOUND"}), 404
+    
+#     try:
+#         db.session(report)
+#         db.session.commit()
+#         return jsonify({"message": "report deleted"}), 200
+    
+#     except Exception:
+#         db.session.rollback()
+#         return jsonify({"message": "error deleting report"}), 500
+    
