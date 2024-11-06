@@ -1,9 +1,10 @@
 """
 This module takes care of starting the API Server, Loading the DB and Adding the endpoints
 """
+from flask_jwt_extended import create_access_token, jwt_required, get_jwt_identity
+from werkzeug.security import generate_password_hash, check_password_hash
 from flask import Flask, request, jsonify, url_for, Blueprint
-from api. models import db, User, Match
-#from api. models import db, User, Preferences, Match, TrainingSessions, UserFeedback, Report
+from api.models import db, User, Match
 from api.utils import generate_sitemap, APIException
 from flask_cors import CORS
 from datetime import datetime
@@ -18,33 +19,72 @@ api = Blueprint('api', __name__)
 CORS(api)
 
 
+@api.route("/auth-google", methods=["POST"])
+def google_login():
+    data = request.json
+    token = data.get("token")
 
+    # Step 1: Verify Google Token
+    user_info = verify_google_token(token)
+    if not user_info:
+        return jsonify({"error": "Invalid Google token"}), 400
 
+    # Extract relevant info from the token
+    google_id = user_info["sub"]  # Unique identifier for the Google account
+    email = user_info["email"]
 
+    # Step 2: Check if user already exists in database (use your database logic here)
+    # Assuming a function `get_user_by_google_id` checks if user exists
+    user = get_user_by_google_id(google_id)
+    if not user:
+        # Create new user if they don't exist
+        user = create_user(email=email, google_id=google_id)
 
-@api.route('/hello', methods=['POST', 'GET'])
-def handle_hello():
+    # Step 3: Generate a JWT token for the user
+    access_token = create_access_token(identity=user["id"])
+
+    return jsonify(
+        access_token=access_token
+    )
+
+@api.route('/signup', methods=['POST'])
+def sign_up():
+    data = request.json
+    email = data.get("email")
+    password = data.get("password")
+    full_name = data.get("full_name")
+    state = data.get("state")
+    city = data.get("city")
+
+    if User.query.filter_by(email=email).first():
+        return jsonify({"error": "Email already exists"}), 400
+
+    new_user = User(
+       email = email,
+       password = generate_password_hash(password), 
+       full_name = full_name,
+       state = state,
+       city = city
+    )
+    db.session.add(new_user)
+    db.session.commit()
+    
 
     response_body = {
-        "message": "Hello! I'm a message that came from the backend, check the network tab on the google inspector and you will see the GET request"
+        "message": "User successfully created",
+        "user": new_user.serialize() 
     }
 
-    return jsonify(response_body), 200
+    return jsonify(response_body), 201
 
-@api.route('/users', methods=['GET'])
-def get_all_users():
-    users= User.query.all()
-    serialized_users = [user.serialize() for user in users]
-    response_body = {
-        "message": "Here's a list of all users", "users": serialized_users 
-    }
-
-    return jsonify(response_body), 200
-
-
-@api.route("/users/<int:user_id>", methods= ["GET"])
-def get_user_info(user_id):
-    user= User.query.get(user_id)
+@api.route('/login', methods=['POST'])
+def login():
+    data=request.json
+    email=data.get("email")
+    password=data.get("password")
+    if None in[email, password]:
+        return jsonify({"msg":"some required fields are missing"}), 400
+    user=User.query.filter_by(email=email).first()
     if user is None:
         return jsonify({
             "success": False,
