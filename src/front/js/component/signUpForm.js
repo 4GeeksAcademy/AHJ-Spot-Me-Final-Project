@@ -1,9 +1,11 @@
 // src/pages/SignupForm.js
 import React, { useState, useContext } from 'react';
 import { Context } from '../store/appContext';
+import { useNavigate } from "react-router-dom";
 
 const SignupForm = () => {
     const {actions}=useContext(Context)
+    const navigate = useNavigate();
     const [formData, setFormData] = useState({
         email: '',
         password: '',
