@@ -183,7 +183,7 @@ def edit_profile():
     bio = request_data.get("bio")
     gender = request_data.get("gender")
     name = request_data.get("name")
-    profile_picture = request.data.get("profile_picture")
+    # profile_picture = request.data.get("profile_picture")
 
     #New
     if user:
@@ -209,9 +209,9 @@ def edit_profile():
         user.name = name
 
         # Validate profile picture URL format if needed
-        if profile_picture and not isinstance(profile_picture, str):
-            return jsonify({"msg": "Profile picture must be a valid URL string."}), 400
-        user.profile_picture = profile_picture
+        # if profile_picture and not isinstance(profile_picture, str):
+        #     return jsonify({"msg": "Profile picture must be a valid URL string."}), 400
+        # user.profile_picture = profile_picture
 
 
     user = User.query.filter_by(email=get_jwt_identity()).first()
@@ -221,7 +221,7 @@ def edit_profile():
         user.bio=bio
         user.gender=gender
         user.name=name 
-        user.profile_picture=profile_picture
+        # user.profile_picture=profile_picture
         db.session.commit()
         return jsonify({ "message": "Success your profile has been updated", "user": user.serialize() }), 200
 
