@@ -1,6 +1,6 @@
 from flask_sqlalchemy import SQLAlchemy
-
 import datetime
+
 db = SQLAlchemy()
 
 # Exercise/Sports Interests Table
@@ -20,10 +20,9 @@ class User(db.Model):
     __tablename__ = 'user'
     id = db.Column(db.Integer, primary_key=True)
     google_id = db.Column(db.String, unique=True)
-    google_id = db.Column(db.String, unique=True)
     name = db.Column(db.String, nullable=False)
     email = db.Column(db.String, unique=True, nullable=False)
-    password_hash = db.Column(db.String, nullable=False)
+    password_hash = db.Column(db.String)
     age = db.Column(db.Integer)
     state = db.Column(db.String(50))
     city = db. Column(db.String(100))

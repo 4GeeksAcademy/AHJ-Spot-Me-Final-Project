@@ -13,7 +13,7 @@ const LoginForm = () => {
         console.log("Google Sign-In Response:", response);
 
         try {
-            const res = await fetch("/api/google-auth", {
+            const res = await fetch(`${process.env.BACKEND_URL}/auth-google`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ token: response.credential })
