@@ -1,7 +1,7 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "20a5c1e1563a0e0997df8185a4e2d2f74ff9026e0f823050c10e6e65dda2e7ca"
+            "sha256": "4f0e9a772f04b621ff0313b7ecfa468af1526aa27df8bfcacac6955d499d352d"
         },
         "pipfile-spec": 6,
         "requires": {
@@ -54,14 +54,6 @@
             ],
             "index": "pypi",
             "version": "==1.41.0"
-        },
-        "eralchemy2": {
-            "hashes": [
-                "sha256:1c1ee49b26287a459c5c89aa3eba3d6a9d1b8e6bd245d9fbacc6b15560fc66a5",
-                "sha256:be3ecd4e696172fe4b439a3010b08564c6f7c7323b9e9b4369e47da7a7b48428"
-            ],
-            "index": "pypi",
-            "version": "==1.4.1"
         },
         "flask": {
             "hashes": [
@@ -377,13 +369,6 @@
             ],
             "index": "pypi",
             "version": "==2.9.10"
-        },
-        "pygraphviz": {
-            "hashes": [
-                "sha256:c10df02377f4e39b00ae17c862f4ee7e5767317f1c6b2dfd04cea6acc7fc2bea"
-            ],
-            "markers": "python_version >= '3.10'",
-            "version": "==1.14"
         },
         "pyjwt": {
             "hashes": [

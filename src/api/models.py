@@ -4,13 +4,13 @@ import datetime
 db = SQLAlchemy()
 
 # Exercise/Sports Interests Table
-class exercise_interests(db.Model):
+class ExerciseInterests(db.Model):
     __tablename__ = 'exercise_interests'
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String, unique=True, nullable=False)
 
 # Available Gyms Table
-class gym_preference(db.Model):
+class GymPreference(db.Model):
     __tablename__ = 'gym_preference'
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String, unique=True, nullable=False)
@@ -19,6 +19,7 @@ class gym_preference(db.Model):
 class User(db.Model):
     __tablename__ = 'user'
     id = db.Column(db.Integer, primary_key=True)
+    google_id = db.Column(db.String, unique=True)
     google_id = db.Column(db.String, unique=True)
     name = db.Column(db.String, nullable=False)
     email = db.Column(db.String, unique=True, nullable=False)
@@ -34,8 +35,8 @@ class User(db.Model):
     gym_membership = db.Column(db.String)
     preferred_spotting_style = db.Column(db.String)  # Enum removed, you can replace with a Foreign Key if needed
     bio = db.Column(db.String)
-    exercise_interest = db.relationship("exercise_interests")
-    gym_pref = db.relationship("gym_preference")
+    exercise_interest = db.relationship("ExerciseInterests")
+    gym = db.relationship("GymPreference")
     matches = db.relationship("Match", foreign_keys="[Match.user1_id]", back_populates="user1")
 
 # Match Table
