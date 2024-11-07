@@ -154,7 +154,7 @@ def sign_up():
 
 
 
-@api.route('/api/login', methods=['POST'])
+@api.route('/login', methods=['POST'])
 def login():
     try:
         # Get data from request body
