@@ -1,59 +1,64 @@
 import React, { useEffect, useState, useContext } from "react";
-import { Context } from "../store/appContext"
-import { useNavigate } from "react-router-dom";
+import { Context } from "../store/appContext";
+import { useNavigate, Link } from "react-router-dom";
 
 const LoginForm = () => {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
-    const { store, actions } = useContext(Context)
-    const navigate = useNavigate()
+    const { store, actions } = useContext(Context);
+    const navigate = useNavigate();
 
     // Handle Google Login Response
     const handleGoogleLogin = async (response) => {
         console.log("Google Sign-In Response:", response);
 
         try {
-            const res = await fetch("/api/google-auth", {
+            const res = await fetch(`${process.env.BACKEND_URL}/api/auth-google`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ token: response.credential })
             });
             const data = await res.json();
 
-
-
-            localStorage.setItem('authToken', data.access_token);
+            localStorage.setItem("authToken", data.access_token);
+            await navigate("/");
 
         } catch (error) {
             console.error("Error during Google login:", error);
             alert("Login failed. Please try again.");
         }
-
     };
 
     // Initialize Google Sign-In
     useEffect(() => {
         /* global google */
         google.accounts.id.initialize({
-            client_id: process.env.REACT_APP_GOOGLE_CLIENT_ID,  // Uses environment variable
+            client_id: process.env.REACT_APP_GOOGLE_CLIENT_ID,
             callback: handleGoogleLogin
         });
 
         google.accounts.id.renderButton(
             document.getElementById("googleSignInButton"),
-            { theme: "outline", size: "large" } // Customize button appearance
+            { theme: "outline", size: "large" }
         );
     }, []);
 
     // Handle traditional form submission
     const handleFormSubmit = async (event) => {
         event.preventDefault();
-        let success = await actions.login(email, password)
+        let success = await actions.login(email, password);
         if (!success) {
-            alert("login failed please try again later")
+            alert("Login failed. Please try again later");
         } else {
-            navigate("/")
+            navigate("/");
         }
+    };
+
+    // Sign Out Function
+    const signOut = () => {
+        localStorage.removeItem("authToken"); // Clear the token from localStorage
+        alert("You have been signed out.");
+        navigate("/login"); // Redirect to login page
     };
 
     return (
@@ -88,6 +93,18 @@ const LoginForm = () => {
                     </form>
                     <p className="m-0">-- OR --</p>
                     <div id="googleSignInButton" className="mt-3"></div> {/* Google button placeholder */}
+                    
+                    {/* Forgot Password Link */}
+                    <div className="text-center mt-3">
+                        <Link to="/forgot-password" className="text-decoration-none">
+                            Forgot Password?
+                        </Link>
+                    </div>
+
+                    {/* Sign-Out Button */}
+                    <button onClick={signOut} className="btn btn-secondary w-100 mt-3">
+                        Sign Out
+                    </button>
                 </div>
             </div>
         </div>

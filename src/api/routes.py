@@ -3,11 +3,9 @@ This module takes care of starting the API Server, Loading the DB and Adding the
 """
 from flask_jwt_extended import create_access_token, jwt_required, get_jwt_identity
 from werkzeug.security import generate_password_hash, check_password_hash
-from flask import Flask, request, jsonify, url_for, Blueprint
-from api.models import db, User, Match
-from api.utils import generate_sitemap, APIException
+from flask import request, jsonify, Blueprint
+from api.models import db, User
 from flask_cors import CORS
-from datetime import datetime
 from flask_jwt_extended import jwt_required, get_jwt_identity, create_access_token, get_jwt
 from api.blacklist import blacklist
 from api.db_functions import get_user_by_google_id, create_user
@@ -32,16 +30,20 @@ def google_login():
     # Extract relevant info from the token
     google_id = user_info["sub"]  # Unique identifier for the Google account
     email = user_info["email"]
+    name = user_info["name"]
 
     # Step 2: Check if user already exists in database (use your database logic here)
     # Assuming a function `get_user_by_google_id` checks if user exists
     user = get_user_by_google_id(google_id)
     if not user:
         # Create new user if they don't exist
-        user = create_user(email=email, google_id=google_id)
+        user = create_user(email=email, google_id=google_id, name=name)
 
+    serialized_user = user.serialize()
+    print(serialized_user)
+    
     # Step 3: Generate a JWT token for the user
-    access_token = create_access_token(identity=user["id"])
+    access_token = create_access_token(identity=serialized_user["id"])
 
     return jsonify(
         access_token=access_token
@@ -208,7 +210,7 @@ def login():
 
 #     return jsonify({ "msg": "Congrats! Your account was succesfully created." }), 201
 
-#New
+# Get got an error in this endpoint
 @api.route('/check-profile', methods=['GET'])
 @jwt_required()
 def check_profile_completeness():
@@ -234,6 +236,7 @@ def check_profile_completeness():
     return jsonify({"msg": "Profile is complete.", "profile_complete": True}), 200
 
 
+# This endpoint needs to return something
 @api.route('/logout', methods=['POST'])
 @jwt_required()
 def logout_user():
@@ -241,7 +244,7 @@ def logout_user():
     blacklist.add(jti) # Invalidate the token
 
 
-
+# We got errors in this endpoint
 @api.route('/edit-profile', methods=['PUT'])
 @jwt_required()
 def edit_profile():
