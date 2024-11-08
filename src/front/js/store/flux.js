@@ -1,7 +1,7 @@
 const getState = ({ getStore, getActions, setStore }) => {
 	return {
 		store: {
-			users: []
+			users: [],
 		},
 		actions: {
 			getAllUsers: () => {
@@ -69,6 +69,10 @@ const getState = ({ getStore, getActions, setStore }) => {
 				console.log(data)
 				localStorage.setItem("token", data.access_token)
 				return true
+			},
+
+			logOut: () => {
+				localStorage.removeItem("token");
 			}
 		}
 	};

@@ -48,9 +48,10 @@ setup_commands(app)
 app.register_blueprint(api, url_prefix='/api')
 
 @jwt.token_in_blocklist_loader # Runs every time a private request is made
-def check_if_token_in_blacklist(_, jwt_payload):
+def check_if_token_in_blacklist(jwt_header, jwt_payload):
     jti = jwt_payload['jti']
     return jti in blacklist
+
 
 # Handle/serialize errors like a JSON object
 
