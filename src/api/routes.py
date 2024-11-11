@@ -139,6 +139,17 @@ def login():
     except Exception as e:
         print("Login error:", str(e))
         return jsonify({"error": "An error occurred during login"}), 500
+
+
+@api.route('/logout', methods=['POST'])
+@jwt_required()
+def logout_user():
+    try:
+        jti = get_jwt()["jti"] # Get the token ID
+        blacklist.add(jti) # Invalidate the token
+        return jsonify({"message": "Successfully logged out"}), 200
+    except Exception as e:
+        return jsonify({"error": f"Logout failed: {str(e)}"}), 500
     
 
 # Get got an error in this endpoint
@@ -166,13 +177,6 @@ def check_profile_completeness():
     # If profile is complete
     return jsonify({"msg": "Profile is complete.", "profile_complete": True}), 200
 
-
-# This endpoint needs to return something
-@api.route('/logout', methods=['POST'])
-@jwt_required()
-def logout_user():
-    jti = get_jwt()['jti'] # Get the token ID
-    blacklist.add(jti) # Invalidate the token
 
 
 # We got errors in this endpoint

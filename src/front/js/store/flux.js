@@ -71,9 +71,30 @@ const getState = ({ getStore, getActions, setStore }) => {
 				return true
 			},
 
-			logOut: () => {
-				localStorage.removeItem("token");
-			}
+			logout: async () => {
+                try {
+                    const token = localStorage.getItem("token");
+                    if (!token) return true;
+
+                    const response = await fetch(process.env.BACKEND_URL + "/api/logout", {
+                        method: "POST",
+                        headers: {
+                            "Authorization": `Bearer ${token}`
+                        }
+                    });
+
+                    if (response.status === 200) {
+                        localStorage.removeItem("token");
+                        localStorage.removeItem("authToken");
+                        return true;
+                    }
+                    return false;
+                } catch (error) {
+                    console.error("Logout error:", error);
+                    return false;
+                }
+            },
+
 		}
 	};
 };
