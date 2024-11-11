@@ -152,6 +152,58 @@ def logout_user():
         return jsonify({"error": f"Logout failed: {str(e)}"}), 500
     
 
+@api.route("/forgot-password", methods=["POST"])
+def forgot_password(): 
+    email=request.json.get("email")
+
+    user = User.query.filter_by(email=email).first()
+    if user is None: 
+        return jsonify({"message": "email does not exist"}), 400
+    
+    expiration_time=datetime.utcnow() + timedelta(minutes=20)
+    token = jwt.encode({"email": email, "exp": expiration_time}, os.getenv("FLASK_APP_KEY"), algorithm="HS256")
+
+    # email_value=f"Click here to reset password.\n{os.getenv('FRONTEND_URL')}/forgot-password?token={token}"
+    email_value=f"""
+        Hello,
+
+        You have requested to reset your password. Please click the link below to reset your password:
+
+        {os.getenv('FRONTEND_URL')}/forgot-password?token={token}
+
+        This link will expire in 20 minutes.
+
+        If you didn't request this password reset, please ignore this email or contact support if you have concerns.
+
+        Best regards,
+        Spot Me Team
+        """
+    send_email(email, email_value, "Password Recovery: Spot Me")
+    return jsonify({"message": "recovery email sent"}), 200
+
+@api.route("/reset-password/<token>", methods=["PUT"])
+def reset_password(token):
+    data=request.get_json()
+    password=data.get("password")
+
+    try:
+        decoded_token=jwt.decode(token, os.getenv("FLASK_APP_KEY"), algorithms=["HS256"])
+        email=decoded_token.get("email")
+    except jwt.ExpiredSignatureError:
+        return jsonify({"message": "Token has expired" }), 400
+    except jwt.InvalidTokenError:
+        return jsonify({"message": "Invalid token"}), 400
+    
+    user=User.query.filter_by(email=email).first()
+    if not user:
+        return jsonify({"message": "User does not exist"}), 400
+    
+    user.password=generate_password_hash(password)
+    db.session.commit()
+
+    send_email(email, "Password Successfully Reset", "password reset confirmation for Spot Me")
+    return jsonify({"message": "password reset email sent"}), 200
+
 # Get got an error in this endpoint
 @api.route('/check-profile', methods=['GET'])
 @jwt_required()

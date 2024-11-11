@@ -13,6 +13,7 @@ import { Footer } from "./component/footer";
 import { Login } from "./pages/login";
 import { Signup } from "./pages/signup";
 import { ForgotPassword } from "./component/forgotpasswordform.js";
+import { ResetPassword } from "./component/resetpasswordform.js";
 import Profile2 from "./pages/Profile2";
 
 //create your first component
@@ -21,7 +22,7 @@ const Layout = () => {
     // you can set the basename on the .env file located at the root of this project, E.g: BASENAME=/react-hello-webapp/
     const basename = process.env.BASENAME || "";
 
-    if(!process.env.BACKEND_URL || process.env.BACKEND_URL == "") return <BackendURL/ >;
+    if (!process.env.BACKEND_URL || process.env.BACKEND_URL == "") return <BackendURL />;
 
     return (
         <div>
@@ -33,6 +34,7 @@ const Layout = () => {
                         <Route element={<Login />} path="/login" />
                         <Route element={<Signup />} path="/signup" />
                         <Route element={<ForgotPassword />} path="/forgot-password" />
+                        <Route element={<ResetPassword />} path="/reset-password" />
                         <Route element={<Profile2 />} path="/profile2" />
                         <Route element={<Spotters />} path="/spotters" />
                         <Route element={<Single />} path="/single/:theid" />
