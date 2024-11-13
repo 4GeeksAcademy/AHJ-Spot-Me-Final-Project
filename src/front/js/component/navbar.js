@@ -1,18 +1,30 @@
-import React from "react";
+import React, { useContext } from "react";
+import { Context } from "../store/appContext";
 import { Link, useNavigate } from "react-router-dom";
 
 export const Navbar = () => {
     const navigate = useNavigate();
+    const { actions } = useContext(Context);
 
     // Check if the user is logged in
     const isLoggedIn = !!localStorage.getItem("authToken") || !!localStorage.getItem("token");
 
     // Sign Out function
-    const handleSignOut = () => {
-        localStorage.removeItem("authToken"); // Clear the auth token
-        localStorage.removeItem("token");
-        alert("You have been signed out.");
-        navigate("/login"); // Redirect to login page
+    // const handleSignOut = () => {
+    //     localStorage.removeItem("authToken"); // Clear the auth token
+    //     localStorage.removeItem("token");
+    //     alert("You have been signed out.");
+    //     navigate("/login"); // Redirect to login page
+    // };
+
+    const handleSignOut = async () => {
+        const success = await actions.logout();
+        if (success) {
+            alert("You have been signed out.");
+            navigate("/login");
+        } else {
+            alert("Error signing out. Please try again.");
+        }
     };
 
     return (

@@ -2,14 +2,19 @@
 This module takes care of starting the API Server, Loading the DB and Adding the endpoints
 """
 from flask_jwt_extended import create_access_token, jwt_required, get_jwt_identity
+import jwt
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask import request, jsonify, Blueprint
-from api.models import db, User
+from api.models import db, User, Match
+from api.send_email import send_email
 from flask_cors import CORS
 from flask_jwt_extended import jwt_required, get_jwt_identity, create_access_token, get_jwt
 from api.blacklist import blacklist
 from api.db_functions import get_user_by_google_id, create_user
 from api.google_auth import verify_google_token
+from datetime import datetime, timedelta
+import os
+
 
 api = Blueprint('api', __name__)
 
@@ -49,35 +54,9 @@ def google_login():
         access_token=access_token
     )
 
-# @api.route('/signup', methods=['POST'])
-# def sign_up():
-#     data = request.json
-#     email = data.get("email")
-#     password_hash = data.get("password")
-#     full_name = data.get("full_name")
-#     state = data.get("state")
-#     city = data.get("city")
 
-#     if User.query.filter_by(email=email).first():
-#         return jsonify({"error": "Email already exists"}), 400
 
-#     new_user = User(
-#        email = email,
-#        password_hash = generate_password_hash(password_hash), 
-#        name = full_name,
-#        state = state,
-#        city = city
-#     )
-#     db.session.add(new_user)
-#     db.session.commit()
-    
 
-#     response_body = {
-#         "message": "User successfully created",
-#         "user": new_user.serialize() 
-#     }
-
-#     return jsonify(response_body), 201
 
 @api.route('/signup', methods=['POST'])
 def sign_up():
@@ -132,29 +111,6 @@ def sign_up():
             "details": str(e)
         }), 500
 
-# @api.route('/login', methods=['POST'])
-# def login():
-#     data=request.json
-#     email=data.get("email")
-#     _hash=data.get("password")
-#     if None in[email, _hash]:
-#         return jsonify({"msg":"some required fields are missing"}), 400
-#     user=User.query.filter_by(email=email).first()
-#     if user is None:
-#         return jsonify({
-#             "success": False,
-#             "message": "user not found",
-#             "error": "USER_NOT_FOUND",
-
-#         }), 404
-    
-#     return jsonify({
-#         "success": True,
-#         "message": "user retrieve successfuly",
-#         "data": user.serialize()
-#     }), 200
-
-
 
 @api.route('/login', methods=['POST'])
 def login():
@@ -187,28 +143,70 @@ def login():
     except Exception as e:
         print("Login error:", str(e))
         return jsonify({"error": "An error occurred during login"}), 500
+
+
+@api.route('/logout', methods=['POST'])
+@jwt_required()
+def logout_user():
+    try:
+        jti = get_jwt()["jti"] # Get the token ID
+        blacklist.add(jti) # Invalidate the token
+        return jsonify({"message": "Successfully logged out"}), 200
+    except Exception as e:
+        return jsonify({"error": f"Logout failed: {str(e)}"}), 500
     
 
-# @api.route('/signup', methods=['POST'])
-# def create_user():
-#     request_data = request.get_json()
-#     email = request_data.get("email")
-#     password_hash = request_data.get("password")
-#     if None in [email, password_hash]:
-#         return jsonify({"msg": "Some requiered are missing"}), 400
+@api.route("/forgot-password", methods=["POST"])
+def forgot_password(): 
+    email=request.json.get("email")
 
-#     user = User.query.filter_by(email=email).first()
-#     if user: 
-#         return jsonify({ "message": "The user already exist"}), 409
+    user = User.query.filter_by(email=email).first()
+    if user is None: 
+        return jsonify({"message": "email does not exist"}), 400
+    
+    expiration_time=datetime.utcnow() + timedelta(minutes=20)
+    token = jwt.encode({"email": email, "exp": expiration_time}, os.getenv("FLASK_APP_KEY"), algorithm="HS256")
 
-#     new_user = User(email=email, password_hash=password_hash, is_active=True)
+    # email_value=f"Click here to reset password.\n{os.getenv('FRONTEND_URL')}/forgot-password?token={token}"
+    email_value=f"""
+        Hello,
 
-#     db.session.add(new_user)
-#     db.session.commit()
+        You have requested to reset your password. Please click the link below to reset your password:
 
-   
+        {os.getenv('FRONTEND_URL')}/reset-password?token={token}
 
-#     return jsonify({ "msg": "Congrats! Your account was succesfully created." }), 201
+        This link will expire in 20 minutes.
+
+        If you didn't request this password reset, please ignore this email or contact support if you have concerns.
+
+        Best regards,
+        Spot Me Team
+        """
+    send_email(email, email_value, "Password Recovery: Spot Me")
+    return jsonify({"message": "recovery email sent"}), 200
+
+@api.route("/reset-password/<token>", methods=["PUT"])
+def reset_password(token):
+    data=request.get_json()
+    password=data.get("password")
+
+    try:
+        decoded_token=jwt.decode(token, os.getenv("FLASK_APP_KEY"), algorithms=["HS256"])
+        email=decoded_token.get("email")
+    except jwt.ExpiredSignatureError:
+        return jsonify({"message": "Token has expired" }), 400
+    except jwt.InvalidTokenError:
+        return jsonify({"message": "Invalid token"}), 400
+    
+    user=User.query.filter_by(email=email).first()
+    if not user:
+        return jsonify({"message": "User does not exist"}), 400
+    
+    user.password_hash=generate_password_hash(password)
+    db.session.commit()
+
+    send_email(email, "Password Successfully Reset", "password reset confirmation for Spot Me")
+    return jsonify({"message": "your password has now been reset"}), 200
 
 # Get got an error in this endpoint
 @api.route('/check-profile', methods=['GET'])
@@ -235,13 +233,6 @@ def check_profile_completeness():
     # If profile is complete
     return jsonify({"msg": "Profile is complete.", "profile_complete": True}), 200
 
-
-# This endpoint needs to return something
-@api.route('/logout', methods=['POST'])
-@jwt_required()
-def logout_user():
-    jti = get_jwt()['jti'] # Get the token ID
-    blacklist.add(jti) # Invalidate the token
 
 
 # We got errors in this endpoint
@@ -282,8 +273,7 @@ def edit_profile():
         if profile_picture and not isinstance(profile_picture, str):
             return jsonify({"msg": "Profile picture must be a valid URL string."}), 400
         user.profile_picture = profile_picture
-
-
+        
     user = User.query.filter_by(email=get_jwt_identity()).first()
 
     if user:
@@ -297,133 +287,9 @@ def edit_profile():
 
     return jsonify({ "message": "The user doesnt exist"}), 404
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-# @api.route("/users/<int:user_id>/preferences", methods= ["GET", "POST"])
-# def handle_preferences(user_id):
-#     if request.method == "GET":
-#         prefs = Preferences.query.filter_by(user_id = user_id).first()
-#         if not prefs:
-#             return jsonify({"message":"preferences not found"}), 404
-#         return jsonify(prefs.serialize()), 200
-    
-#     data = request.get_json()
-#     prefs = Preferences.query.filter_by(user_id = user_id).first()
-
-#     if prefs:
-#         #update existing preferences 
-#         for key, value in data.items():
-#             setattr(prefs, key, value)
-
-#     else: 
-#         #create new preferences
-#         prefs = Preferences(user_id = user_id, **data)
-#         db.session.add(prefs)
-
-#     db.session.commit()
-#     return jsonify(prefs.serialize()), 200
-
-# api.route("/feedback", methods =["POST"])
-# def create_feedback():
-#     data = request.get_json(),
-#     required_fields =["user_id", "match_id", "rating"]
-
-#     if not all(field in data for field in required_fields):
-#         return jsonify({"message": "missing required fields"}), 400
-    
-#     new_feedback = UserFeedback(
-#         user_id = data["user_id"],
-#         match_id = data["match_id"],
-#         rating = data ["rating_id"],
-#         comment = data.get("comments"),
-#         submitted_on = datetime.utcnow()
-#     )
-
-#     db.session.add(new_feedback)
-#     db.session.commit()
-#     return jsonify(new_feedback.serialize()), 201
-    
-# api.route("/reports", methods =["POST"])
-# def create_report():
-#     data = request.get_json(),
-#     required_fields =["reported_user_id", "reporter_user_id", "reason"]
-
-#     if not all(field in data for field in required_fields):
-#         return jsonify({"message": "missing required fields"}), 400
-    
-#     new_report = Report(
-#         reported_by_id = data["reported_by_id"],
-#         reported_user_id = data["reported_user_id"],
-#         reason = data["reason"],
-#         report_description = data.get("report_description"),
-#         reported_on = datetime.utcnow(),
-#         is_resolved = False
-
-#     )
-
-#     db.session.add(new_report)
-#     db.session.commit()
-#     return jsonify(new_report.serialize()), 201
-
-# api.route("/reports/<int:report_id>/resolved", methods= ["PUT"])
-# def resolved_report(report_id):
-#     report = Report.query.get(report_id)
-
-#     if report is None:
-#         return jsonify({"message": "REPORT_NOT_FOUND"}), 404
-    
-#     report.is_resolved = True
-#     db.session.commit()
-
-#     return jsonify({"data":report.serialize()}), 200
-
-# api.route("/reports/<int:report_id>", methods= ["DELETE"])
-# def delete_report(report_id):
-#     report = Report.query.get(report_id)
-
-#     if report is None:
-#         return jsonify({"message": "REPORT_NOT_FOUND"}), 404
-    
-#     try:
-#         db.session(report)
-#         db.session.commit()
-#         return jsonify({"message": "report deleted"}), 200
-    
-#     except Exception:
-#         db.session.rollback()
-#         return jsonify({"message": "error deleting report"}), 500
+@api.route('/matches', methods=['GET'])
+@jwt_required()
+def get_matches():
+    matches=Match.query.all()
+    return jsonify([matches.serialize()for match in matches])
     
