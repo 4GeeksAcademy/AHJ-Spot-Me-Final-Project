@@ -89,6 +89,9 @@ const getState = ({ getStore, getActions, setStore }) => {
 						localStorage.removeItem("authToken");
 						return true;
 					}
+					localStorage.removeItem("token");
+					localStorage.removeItem("authToken");
+
 					return false;
 				} catch (error) {
 					console.error("Logout error:", error);

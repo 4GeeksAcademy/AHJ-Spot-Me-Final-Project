@@ -2,14 +2,18 @@
 This module takes care of starting the API Server, Loading the DB and Adding the endpoints
 """
 from flask_jwt_extended import create_access_token, jwt_required, get_jwt_identity
+import jwt
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask import request, jsonify, Blueprint
 from api.models import db, User, Match
+from api.send_email import send_email
 from flask_cors import CORS
 from flask_jwt_extended import jwt_required, get_jwt_identity, create_access_token, get_jwt
 from api.blacklist import blacklist
 from api.db_functions import get_user_by_google_id, create_user
 from api.google_auth import verify_google_token
+from datetime import datetime, timedelta
+import os
 
 
 api = Blueprint('api', __name__)
@@ -169,7 +173,7 @@ def forgot_password():
 
         You have requested to reset your password. Please click the link below to reset your password:
 
-        {os.getenv('FRONTEND_URL')}/forgot-password?token={token}
+        {os.getenv('FRONTEND_URL')}/reset-password?token={token}
 
         This link will expire in 20 minutes.
 
@@ -198,11 +202,11 @@ def reset_password(token):
     if not user:
         return jsonify({"message": "User does not exist"}), 400
     
-    user.password=generate_password_hash(password)
+    user.password_hash=generate_password_hash(password)
     db.session.commit()
 
     send_email(email, "Password Successfully Reset", "password reset confirmation for Spot Me")
-    return jsonify({"message": "password reset email sent"}), 200
+    return jsonify({"message": "your password has now been reset"}), 200
 
 # Get got an error in this endpoint
 @api.route('/check-profile', methods=['GET'])
