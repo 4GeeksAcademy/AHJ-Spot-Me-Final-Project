@@ -4,7 +4,7 @@ import { Context } from '../store/appContext';
 import { useNavigate } from "react-router-dom";
 
 const SignupForm = () => {
-    const {actions}=useContext(Context)
+    const { actions } = useContext(Context);
     const navigate = useNavigate();
     const [formData, setFormData] = useState({
         email: '',
@@ -21,7 +21,7 @@ const SignupForm = () => {
         setFormData({ ...formData, [name]: value });
     };
 
-    const handleSubmit = async(e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
 
         // Basic validation
@@ -45,70 +45,76 @@ const SignupForm = () => {
 
     return (
         <div className="signup-form">
-            <h2>Sign Up</h2>
-            {error && <p className="error">{error}</p>}
+            <h2 className="text-center mb-4">Sign Up</h2>
+            {error && <p className="error text-danger">{error}</p>}
             <form onSubmit={handleSubmit}>
-                <div>
+                <div className="mb-3">
                     <label>Email:</label>
                     <input
                         type="email"
                         name="email"
                         value={formData.email}
                         onChange={handleChange}
+                        className="form-control"
                         required
                     />
                 </div>
-                <div>
+                <div className="mb-3">
                     <label>Password:</label>
                     <input
                         type="password"
                         name="password"
                         value={formData.password}
                         onChange={handleChange}
+                        className="form-control"
                         required
                     />
                 </div>
-                <div>
+                <div className="mb-3">
                     <label>Confirm Password:</label>
                     <input
                         type="password"
                         name="confirmPassword"
                         value={formData.confirmPassword}
                         onChange={handleChange}
+                        className="form-control"
                         required
                     />
                 </div>
-                <div>
+                <div className="mb-3">
                     <label>Full Name:</label>
                     <input
                         type="text"
                         name="fullName"
                         value={formData.fullName}
                         onChange={handleChange}
+                        className="form-control"
                         required
                     />
                 </div>
-                <div>
+                <div className="mb-3">
                     <label>State:</label>
                     <input
                         type="text"
                         name="state"
                         value={formData.state}
                         onChange={handleChange}
+                        className="form-control"
                         required
                     />
                 </div>
-                <div>
+                <div className="mb-3">
                     <label>City:</label>
                     <input
                         type="text"
                         name="city"
                         value={formData.city}
                         onChange={handleChange}
+                        className="form-control"
                         required
                     />
                 </div>
-                <button type="submit">Sign Up</button>
+                <button type="submit" className="btn btn-primary w-100">Sign Up</button>
             </form>
         </div>
     );

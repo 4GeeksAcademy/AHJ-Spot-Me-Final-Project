@@ -1,6 +1,7 @@
 import React, { useEffect, useState, useContext } from "react";
 import { Context } from "../store/appContext";
 import { useNavigate, Link } from "react-router-dom";
+import "../../styles/login.css"; // Ensure this CSS file is created and imported
 
 const LoginForm = () => {
     const [email, setEmail] = useState("");
@@ -22,7 +23,6 @@ const LoginForm = () => {
 
             localStorage.setItem("authToken", data.access_token);
             await navigate("/");
-
         } catch (error) {
             console.error("Error during Google login:", error);
             alert("Login failed. Please try again.");
@@ -62,50 +62,46 @@ const LoginForm = () => {
     };
 
     return (
-        <div className="container">
-            <div className="card mt-3" style={{ width: "20rem" }}>
-                <div className="card-body">
-                    <h5 className="card-title text-center">Login</h5>
-                    <form id="loginForm" onSubmit={handleFormSubmit}>
-                        <div className="mb-3">
-                            <label htmlFor="user" className="form-label">Email</label>
-                            <input
-                                type="text"
-                                className="form-control"
-                                id="user"
-                                value={email}
-                                onChange={(e) => setEmail(e.target.value)}
-                                required
-                            />
-                        </div>
-                        <div className="mb-3">
-                            <label htmlFor="password" className="form-label">Password</label>
-                            <input
-                                type="password"
-                                className="form-control"
-                                id="password"
-                                value={password}
-                                onChange={(e) => setPassword(e.target.value)}
-                                required
-                            />
-                        </div>
-                        <button type="submit" className="btn btn-primary w-100 mb-3">Login</button>
-                    </form>
-                    <p className="m-0">-- OR --</p>
-                    <div id="googleSignInButton" className="mt-3"></div> {/* Google button placeholder */}
-                    
-                    {/* Forgot Password Link */}
-                    <div className="text-center mt-3">
-                        <Link to="/forgot-password" className="text-decoration-none">
-                            Forgot Password?
-                        </Link>
+        <div className="login-container">
+            <div className="login-card">
+                <h5 className="card-title text-center">Login</h5>
+                <form id="loginForm" onSubmit={handleFormSubmit}>
+                    <div className="mb-3">
+                        <label htmlFor="user" className="form-label">Email</label>
+                        <input
+                            type="text"
+                            className="form-control"
+                            id="user"
+                            value={email}
+                            onChange={(e) => setEmail(e.target.value)}
+                            required
+                        />
                     </div>
+                    <div className="mb-3">
+                        <label htmlFor="password" className="form-label">Password</label>
+                        <input
+                            type="password"
+                            className="form-control"
+                            id="password"
+                            value={password}
+                            onChange={(e) => setPassword(e.target.value)}
+                            required
+                        />
+                    </div>
+                    <button type="submit" className="btn btn-primary w-100 mb-3">Login</button>
+                </form>
+                <p className="text-center m-0">-- OR --</p>
+                <div id="googleSignInButton" className="google-signin-button mt-3"></div> {/* Google button placeholder */}
+                
+                {/* Forgot Password Link */}
+                <Link to="/forgot-password" className="forgot-password-link">
+                    Forgot Password?
+                </Link>
 
-                    {/* Sign-Out Button */}
-                    <button onClick={signOut} className="btn btn-secondary w-100 mt-3">
-                        Sign Out
-                    </button>
-                </div>
+                {/* Sign-Out Button */}
+                <button onClick={signOut} className="btn btn-secondary w-100 mt-3">
+                    Sign Out
+                </button>
             </div>
         </div>
     );

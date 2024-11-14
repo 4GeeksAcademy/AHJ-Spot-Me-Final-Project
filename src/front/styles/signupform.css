@@ -1,49 +1,55 @@
-/* src/pages/SignupForm.css */
-.signup-form {
+/* Center the main signup container and prevent overlap */
+.signup-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: calc(100vh - 160px); /* Full height minus navbar and footer */
+    padding: 20px; /* Additional padding for responsiveness */
+    box-sizing: border-box;
+}
+
+/* Style the signup card */
+.signup-card {
+    width: 100%;
     max-width: 400px;
-    margin: 0 auto;
-    padding: 20px;
-    border: 1px solid #ccc;
+    padding: 30px;
+    background-color: #ffffff;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
     border-radius: 8px;
-    background-color: #f9f9f9;
+    margin-bottom: 20px; /* Add some space between the card and footer */
 }
 
-.signup-form h2 {
-    text-align: center;
-}
-
-.signup-form form div {
-    margin-bottom: 15px;
-}
-
-.signup-form label {
-    display: block;
-    margin-bottom: 5px;
-    font-weight: bold;
-}
-
-.signup-form input {
-    width: 100%;
-    padding: 8px;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-}
-
-.signup-form .error {
-    color: red;
-    margin-bottom: 10px;
-}
-
-.signup-form button {
-    width: 100%;
+/* Consistent Form Control Styling */
+.signup-card .form-control {
     padding: 10px;
-    background-color: #4CAF50;
-    color: white;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
+    margin-bottom: 15px;
+    border-radius: 5px;
+    border: 1px solid #ced4da;
+    font-size: 16px;
+    background-color: #ffffff;
 }
 
-.signup-form button:hover {
-    background-color: #45a049;
+/* Button styling to match login page */
+.signup-card .btn-primary {
+    padding: 10px;
+    font-size: 16px;
+    background-color: #ff8a50;
+    border: none;
+    border-radius: 5px;
+    color: white;
+    font-weight: bold;
+    width: 100%;
+    margin-top: 10px;
+}
+
+.signup-card .btn-primary:hover {
+    background-color: #ff6f33;
+}
+
+/* Responsive styling */
+@media (max-width: 500px) {
+    .signup-card {
+        width: 90%;
+        margin: 0 10px;
+    }
 }
