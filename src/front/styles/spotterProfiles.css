@@ -1,0 +1,47 @@
+.spotter-profiles {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 20px;
+    color: #f0f0f0;
+}
+
+.spotter-profiles h1 {
+    text-align: center;
+    color: #00c2c7;
+}
+
+.filters {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+    background-color: #2a2a2a;
+    padding: 20px;
+    border-radius: 5px;
+    margin-bottom: 20px;
+}
+
+.filter-group {
+    flex: 1 1 200px;
+}
+
+.filter-group label {
+    font-size: 1rem;
+    color: #00c2c7;
+}
+
+.filter-group input,
+.filter-group select {
+    width: 100%;
+    padding: 8px;
+    margin-top: 5px;
+    background-color: #333333;
+    border: 1px solid #555555;
+    border-radius: 5px;
+    color: #f0f0f0;
+}
+
+.profile-cards {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+}

@@ -1,10 +1,20 @@
-import React, { Component } from "react";
+// src/component/footer.js
+import React from "react";
+import { Link } from "react-router-dom";
 
-export const Footer = () => (
-	<footer className="footer mt-auto py-3 text-center">
-		<p>
-			Made with <i className="fa fa-heart text-danger" /> by{" "}
-			<a href="http://www.4geeksacademy.com">4Geeks Academy</a>
-		</p>
-	</footer>
-);
+const Footer = () => {
+    return (
+        <footer className="footer bg-dark text-white py-3">
+            <div className="container d-flex justify-content-between">
+                <div>
+                    <p>&copy; 2024 SpotMe. All Rights Reserved.</p>
+                </div>
+                <div>
+                    <Link to="/contact" className="text-decoration-none text-white me-3">Contact Us</Link>
+                </div>
+            </div>
+        </footer>
+    );
+};
+
+export default Footer;

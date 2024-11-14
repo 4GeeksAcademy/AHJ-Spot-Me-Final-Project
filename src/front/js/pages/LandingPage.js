@@ -22,32 +22,36 @@ const Home = () => {
 
             {/* Features Section */}
             <section className="features-section">
-                <div className="feature-card">
+                <div className="feature">
                     <i className="feature-icon">✔️</i>
                     <h3>Spotters by Exercise Interest</h3>
                 </div>
-                <div className="feature-card">
+                <div className="feature">
                     <i className="feature-icon">✔️</i>
                     <h3>Spotters by Geographic Distance</h3>
                 </div>
-                <div className="feature-card">
+                <div className="feature">
                     <i className="feature-icon">✔️</i>
                     <h3>Spotters by Gym Time</h3>
                 </div>
             </section>
 
-            {/* CTA Section with Quote */}
+            {/* Additional CTA Section */}
             <section className="cta-section">
                 <div className="cta-content">
                     <h2>Don't limit your exercises cause you don’t know anyone at the gym</h2>
                     <p>Find workout partners near you and make progress together.</p>
-                    <blockquote className="cta-quote">
-                        "A spotter is more than just a safety net; it's a partner pushing you to reach your full potential."
-                    </blockquote>
                 </div>
                 <div className="cta-image">
                     <img src="https://images.pexels.com/photos/1552242/pexels-photo-1552242.jpeg?auto=compress&cs=tinysrgb&w=600" alt="People at the gym" />
                 </div>
+            </section>
+
+            {/* Testimonials Section */}
+            <section className="testimonials-section">
+                <blockquote>
+                    <p>"A spotter is more than just a safety net; it's a partner pushing you to reach your full potential."</p>
+                </blockquote>
             </section>
 
             {/* Contact Form Section */}

@@ -1,7 +1,111 @@
-/*
-    home.css: This website contains selectors only used in home.css
+.home {
+    font-family: 'Roboto', sans-serif;
+}
 
-    All pages share the styles on index.css but you should create 
-    one more css for each page that will contain the selected used 
-    on that page only (the ones not reused in other pages).
-*/
+.hero-section {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 40px;
+    background-color: #ffffff;
+}
+
+.hero-content h1 {
+    color: #333333;
+    font-size: 2.5rem;
+    margin-bottom: 10px;
+}
+
+.hero-content p {
+    color: #666666;
+    font-size: 1.2rem;
+    margin-bottom: 20px;
+}
+
+.btn-primary {
+    background-color: #FFA500;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 5px;
+    font-size: 1rem;
+}
+
+.features-section {
+    display: flex;
+    justify-content: space-around;
+    padding: 40px;
+    background-color: #f8f8f8;
+}
+
+.feature-card {
+    background-color: #ffffff;
+    padding: 20px;
+    border-radius: 8px;
+    text-align: center;
+    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.feature-icon {
+    font-size: 2rem;
+    color: #FFA500;
+    margin-bottom: 10px;
+}
+
+.cta-section {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 40px;
+    background-color: #ffffff;
+}
+
+.cta-content h2 {
+    color: #333333;
+    font-size: 2rem;
+    margin-bottom: 10px;
+}
+
+.cta-content p {
+    color: #666666;
+    font-size: 1.2rem;
+    margin-bottom: 20px;
+}
+
+.cta-quote {
+    color: #555555;
+    font-style: italic;
+    font-size: 1.1rem;
+    margin-top: 15px;
+}
+
+.contact-section {
+    text-align: center;
+    padding: 40px;
+    background-color: #f8f8f8;
+}
+
+.contact-section h3 {
+    font-size: 1.8rem;
+    color: #333333;
+    margin-bottom: 20px;
+}
+
+.contact-section form input {
+    background-color: #f1f1f1;
+    color: #333333;
+    border: 1px solid #ccc;
+    padding: 10px;
+    margin: 10px;
+    border-radius: 5px;
+    width: 80%;
+}
+
+.contact-section form .btn-secondary {
+    background-color: #FFA500;
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    margin-top: 10px;
+}

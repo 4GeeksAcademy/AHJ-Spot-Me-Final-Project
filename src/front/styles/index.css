@@ -1,3 +1,169 @@
-/* 
-    General Styles used on every website (Don't Repeat Yourself)
-*/
+.landing-page {
+    background-color: #1f1f1f;
+    color: #f0f0f0;
+    font-family: Arial, sans-serif;
+}
+
+/* Hero Section */
+.hero-section {
+    display: flex;
+    align-items: center;
+    padding: 40px 20px;
+    background-color: #2a2a2a;
+    color: #ffffff;
+}
+
+.hero-content {
+    flex: 1;
+    text-align: left;
+}
+
+.hero-content h1 {
+    font-size: 2.5rem;
+    color: #00c2c7;
+}
+
+.hero-content p {
+    font-size: 1.2rem;
+    color: #f0f0f0;
+    margin-bottom: 20px;
+}
+
+.hero-image img {
+    width: 100%;
+    max-width: 400px;
+    border-radius: 8px;
+}
+
+/* Features Section */
+.features-section {
+    display: flex;
+    justify-content: space-around;
+    padding: 40px 20px;
+    background-color: #1f1f1f;
+}
+
+.features-section .feature {
+    width: 30%;
+    text-align: center;
+    color: #f0f0f0;
+}
+
+.features-section .feature-icon {
+    font-size: 2rem;
+    color: #00c2c7;
+}
+
+.features-section h3 {
+    color: #00c2c7;
+}
+
+/* Additional CTA Section */
+.cta-section {
+    display: flex;
+    align-items: center;
+    padding: 40px 20px;
+    background-color: #ff914d;
+    color: #ffffff;
+}
+
+.cta-content {
+    flex: 1;
+    text-align: left;
+}
+
+.cta-content h2 {
+    font-size: 2rem;
+    margin-bottom: 20px;
+}
+
+.cta-content p {
+    font-size: 1.1rem;
+}
+
+.cta-image img {
+    width: 100%;
+    max-width: 400px;
+    border-radius: 8px;
+}
+
+/* Testimonials Section */
+.testimonials-section {
+    text-align: center;
+    padding: 40px 20px;
+    background-color: #2a2a2a;
+    color: #f0f0f0;
+    font-style: italic;
+}
+
+.testimonials-section blockquote {
+    max-width: 600px;
+    margin: 0 auto;
+}
+
+.testimonials-section footer {
+    margin-top: 10px;
+    color: #00c2c7;
+}
+
+/* Contact Form Section */
+.contact-section {
+    text-align: center;
+    padding: 40px 20px;
+    background-color: #1f1f1f;
+}
+
+.contact-section h3 {
+    color: #00c2c7;
+    font-size: 1.8rem;
+    margin-bottom: 20px;
+}
+
+.contact-section form {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.contact-section input[type="email"],
+.contact-section input[type="text"] {
+    padding: 10px;
+    border: 1px solid #555555;
+    border-radius: 5px;
+    color: #f0f0f0;
+    background-color: #333333;
+    width: 200px;
+}
+
+.contact-section button {
+    background-color: #00c2c7;
+    border: none;
+    color: #ffffff;
+    padding: 10px 20px;
+    border-radius: 5px;
+    font-size: 1rem;
+}
+
+.contact-section button:hover {
+    background-color: #019ba0;
+}
+
+/* Footer Links */
+.footer-links {
+    display: flex;
+    justify-content: center;
+    padding: 20px 0;
+    background-color: #2a2a2a;
+    color: #f0f0f0;
+}
+
+.footer-links a {
+    color: #00c2c7;
+    margin: 0 15px;
+    text-decoration: none;
+}
+
+.footer-links a:hover {
+    color: #ff914d;
+}

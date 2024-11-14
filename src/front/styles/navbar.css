@@ -1,0 +1,59 @@
+.navbar {
+    background-color: #1f1f1f; /* Dark background */
+    padding: 10px 20px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+}
+
+.navbar-brand {
+    color: #00c2c7; /* Teal color for the brand */
+    font-weight: bold;
+    font-size: 1.5rem;
+    text-decoration: none;
+    transition: color 0.3s ease;
+}
+
+.navbar-brand:hover {
+    color: #ff914d; /* Orange hover effect */
+}
+
+.navbar-nav .nav-link {
+    color: #f0f0f0; /* Light text color for nav links */
+    font-size: 1rem;
+    padding: 8px 12px;
+    text-decoration: none;
+    transition: color 0.3s ease;
+}
+
+.navbar-nav .nav-link:hover {
+    color: #00c2c7; /* Teal color on hover */
+}
+
+.navbar-nav .nav-link.active {
+    color: #ff914d; /* Orange color for active link */
+    font-weight: bold;
+}
+
+.navbar-toggler {
+    background-color: #333333; /* Dark background for toggler */
+    border: none;
+}
+
+.navbar-toggler-icon {
+    color: #f0f0f0; /* Light color for the toggler icon */
+}
+
+.btn-outline-primary {
+    color: #f0f0f0;
+    border-color: #ff914d; /* Orange outline for sign-out button */
+}
+
+.btn-outline-primary:hover {
+    color: #ffffff;
+    background-color: #ff914d; /* Orange background on hover */
+    border-color: #ff914d;
+}
+.navbar-logo {
+    height: 40px; /* Adjust this height as needed to fit your navbar */
+    width: auto;
+    max-width: 100px;
+}
