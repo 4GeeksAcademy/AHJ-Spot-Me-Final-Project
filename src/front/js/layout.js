@@ -24,28 +24,29 @@ import NotFound from "./pages/NotFound";
 const Layout = () => {
     const basename = process.env.BASENAME || "";
 
-    if (!process.env.BACKEND_URL || process.env.BACKEND_URL == "") return <BackendURL />;
+    if (!process.env.BACKEND_URL || process.env.BACKEND_URL === "") return <BackendURL />;
 
     return (
-        <div>
+        <div className="layout-wrapper">
             <BrowserRouter basename={basename}>
                 <ScrollToTop>
                     <Navbar />
-                    <Routes>
-                        <Route element={<Home />} path="/" />
-                        <Route element={<Login />} path="/login" />
-                        <Route element={<Signup />} path="/signup" />
-                        <Route element={<ForgotPassword />} path="/forgot-password" />
-                        <Route element={<ResetPassword />} path="/reset-password" />
-                        <Route element={<Profile2 />} path="/profile2" />
-                        <Route element={<Profile2 />} path="/matches" /> {/* Added route for /matches */}
-                        <Route element={<Spotters />} path="/spotters" />
-                        <Route element={<Single />} path="/single/:theid" />
-                        <Route element={<UserProfile />} path="/user-profile" />
-                        <Route element={<SpotterProfiles />} path="/spotter-profiles" />
-                        <Route element={<ContactUs />} path="/contact" />
-                        <Route element={<NotFound />} path="*" />
-                    </Routes>
+                    <div className="content-wrapper">
+                        <Routes>
+                            <Route element={<Home />} path="/" />
+                            <Route element={<Login />} path="/login" />
+                            <Route element={<Signup />} path="/signup" />
+                            <Route element={<ForgotPassword />} path="/forgot-password" />
+                            <Route element={<ResetPassword />} path="/reset-password" />
+                            <Route element={<Profile2 />} path="/matches" /> {/* Added route for /matches */}
+                            <Route element={<Spotters />} path="/spotters" />
+                            <Route element={<Single />} path="/single/:theid" />
+                            <Route element={<UserProfile />} path="/user-profile" />
+                            <Route element={<SpotterProfiles />} path="/spotter-profiles" />
+                            <Route element={<ContactUs />} path="/contact" />
+                            <Route element={<NotFound />} path="*" />
+                        </Routes>
+                    </div>
                     <Footer />
                 </ScrollToTop>
             </BrowserRouter>

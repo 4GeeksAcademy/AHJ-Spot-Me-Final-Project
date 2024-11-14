@@ -1,73 +1,89 @@
+/* contactUs.css */
+
 .contact-us {
-    max-width: 800px;
-    margin: 0 auto;
+    max-width: 900px;
+    margin: 60px auto; /* Adds space between navbar and content */
     padding: 20px;
     text-align: center;
-    color: #333333; /* Dark text color for readability */
-    background-color: #f9f9f9; /* Light background for contrast */
+    color: #333333;
+    background-color: #f9f9f9;
     border-radius: 8px;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 
-.contact-us h1 {
-    font-size: 2rem;
-    color: #00796b; /* Dark teal color to match the theme */
-    margin-bottom: 30px;
+.contact-us h2 {
+    font-size: 2.5rem;
+    color: #00796b;
+    margin-bottom: 40px;
 }
 
 .developer-cards-container {
     display: flex;
     justify-content: center;
-    gap: 20px;
+    gap: 40px; /* Adds space between the cards */
     flex-wrap: wrap;
-    margin-top: 20px;
 }
 
 .developer-card {
     flex: 1;
-    max-width: 250px;
-    padding: 20px;
+    max-width: 300px; /* Increased width for alignment */
+    padding: 30px;
+    padding-bottom: 50px; /* Adds space at the bottom of the card */
     border-radius: 8px;
     box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
     background-color: #ffffff;
     text-align: center;
+    position: relative;
 }
 
-
-.card {
-    background-color: #ffffff; /* Light background for cards */
-    padding: 20px;
-    border-radius: 8px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    width: 250px;
-    text-align: center;
-    color: #333333; /* Dark text color */
+.developer-image {
+    margin-bottom: 15px;
 }
 
-.card h2 {
-    color: #00796b; /* Dark teal color for names */
-    font-size: 1.5rem;
-    margin-bottom: 10px;
+.developer-card h3 {
+    color: #00796b;
+    font-size: 1.7rem;
+    margin-bottom: 15px;
 }
 
-.card p {
+.developer-card p {
     font-size: 1rem;
-    color: #555555; /* Slightly lighter dark gray for bios */
-    margin-bottom: 20px;
+    color: #555555;
+    margin-bottom: 30px;
+    min-height: 60px; /* Ensures all descriptions align */
 }
 
-.github-link {
+.links {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+    margin-top: auto; /* Pushes links to the bottom of the card */
+    position: absolute;
+    bottom: 20px; /* Ensures 20px gap from the bottom */
+    left: 0;
+    right: 0;
+}
+
+.github-link, .linkedin-link {
     display: inline-block;
-    color: #ff914d; /* Orange color for GitHub link */
+    color: #ff914d;
     font-size: 1.2rem;
     text-decoration: none;
     transition: color 0.3s ease;
 }
 
 .github-link:hover {
-    color: #e67b2f; /* Darker orange on hover */
+    color: #e67b2f;
 }
 
-.github-link i {
+.linkedin-link {
+    color: #0077b5;
+}
+
+.linkedin-link:hover {
+    color: #005582;
+}
+
+.github-link i, .linkedin-link i {
     margin-right: 5px;
 }
