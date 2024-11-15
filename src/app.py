@@ -7,7 +7,7 @@ from flask_migrate import Migrate
 from flask_cors import CORS
 from api.utils import APIException, generate_sitemap
 from flask_jwt_extended import JWTManager
-from api.models import db
+from api.models import db, ExerciseInterests
 from api.routes import api
 from api.admin import setup_admin
 from api.commands import setup_commands
@@ -36,6 +36,14 @@ else:
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 MIGRATE = Migrate(app, db, compare_type=True)
 db.init_app(app)
+
+#initialize datavase and seed data 
+def initialize_database():
+    with app.app_context():
+        db.create_all()
+        ExerciseInterests.seed_default_interests()
+
+
 jwt = JWTManager(app)
 
 # add the admin

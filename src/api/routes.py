@@ -4,12 +4,15 @@ This module takes care of starting the API Server, Loading the DB and Adding the
 from flask_jwt_extended import create_access_token, jwt_required, get_jwt_identity
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask import request, jsonify, Blueprint
-from api.models import db, User
+from api.models import db, User, ExerciseInterests, WorkoutSchedule, Like, Match, DayOfWeek, TimeSlot, Gender, User, db
 from flask_cors import CORS
 from flask_jwt_extended import jwt_required, get_jwt_identity, create_access_token, get_jwt
 from api.blacklist import blacklist
 from api.db_functions import get_user_by_google_id, create_user
-from api.google_auth import verify_google_token
+from api.google_auth import verify_google_token 
+
+# from flask import jsonify, request
+# from sqlalchemy import or_, and_
 
 api = Blueprint('api', __name__)
 
@@ -248,182 +251,224 @@ def logout_user():
 @api.route('/edit-profile', methods=['PUT'])
 @jwt_required()
 def edit_profile():
-    request_data = request.get_json()
-    age = request_data.get("age")
-    bio = request_data.get("bio")
-    gender = request_data.get("gender")
-    name = request_data.get("name")
-    # profile_picture = request.data.get("profile_picture")
-
-    #New
-    if user:
+    try:
+        current_user = User.query.get(get_jwt_identity())
+        if not current_user:
+            return jsonify({'error': 'User not found'}), 404
+        
+        request_data = request.get_json()
+        if not request_data:
+            return jsonify({'error': 'No data provided'}), 400
+        
+    
+   
         # Validate age
-        if age:
-            if not isinstance(age, int) or age < 0 or age > 120:
-                return jsonify({"msg": "Age must be a positive integer between 0 and 120."}), 400
-            user.age = age
+        if 'age' in request_data:
+            if not isinstance(request_data['age'], int) or request_data['age'] < 0 or request_data['age'] > 120:
+                return jsonify({"error": "Age must be a positive integer between 0 and 120."}), 400
+            current_user.age = request_data['age']
 
         # Validate bio length
-        if bio and len(bio) > 250:
-            return jsonify({"msg": "Bio must be less than 250 characters."}), 400
-        user.bio = bio
+        if 'bio' in request_data:
+            if len(request_data['bio']) > 250:
+                return jsonify({"error": "Bio must be less than 250 characters."}), 400
+        current_user.bio = (request_data['bio'])
 
         # Validate gender (assuming you have specific acceptable values)
-        if gender and gender not in ["male", "female", "other"]:
-            return jsonify({"msg": "Gender must be 'male', 'female', or 'other'."}), 400
-        user.gender = gender
+        if 'gender' in request_data:
+
+            try:
+                current_user.gender = Gender(request_data['gender'])
+            except ValueError:
+                return jsonify({"error": "Gender must be 'male', 'female', or 'other'."}), 400
 
         # Validate name
-        if name is None:
-            return jsonify({"msg": "Name field is required."}), 400
-        user.name = name
+        if 'name' in request_data:
+            current_user.name = (request_data['name'])
 
         # Validate profile picture URL format if needed
         # if profile_picture and not isinstance(profile_picture, str):
         #     return jsonify({"msg": "Profile picture must be a valid URL string."}), 400
         # user.profile_picture = profile_picture
 
-
-    user = User.query.filter_by(email=get_jwt_identity()).first()
-
-    if user:
-        user.age= age
-        user.bio=bio
-        user.gender=gender
-        user.name=name 
-        # user.profile_picture=profile_picture
         db.session.commit()
-        return jsonify({ "message": "Success your profile has been updated", "user": user.serialize() }), 200
-
-    return jsonify({ "message": "The user doesnt exist"}), 404
-
-
-
-
+        return jsonify({'success': True, 'user': current_user.serialize()}), 200
+  
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'error': str(e)}), 500
 
 
+@api.route('/users', methods=['GET'])
+def get_all_users():
+    users= User.query.all()
+    serialized_users = [user.serialize() for user in users]
+    response_body = {
+        "message": "Here's a list of all users", "users": serialized_users 
+    }
+
+    return jsonify(response_body), 200
 
 
+@api.route("/users/<int:user_id>", methods= ["GET"])
+def get_user_info(user_id):
+    user= User.query.get(user_id)
+    if user is None:
+        return jsonify({
+            "success": False,
+            "message": "user not found",
+            "error": "USER_NOT_FOUND",
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-# @api.route("/users/<int:user_id>/preferences", methods= ["GET", "POST"])
-# def handle_preferences(user_id):
-#     if request.method == "GET":
-#         prefs = Preferences.query.filter_by(user_id = user_id).first()
-#         if not prefs:
-#             return jsonify({"message":"preferences not found"}), 404
-#         return jsonify(prefs.serialize()), 200
+        }), 404
     
-#     data = request.get_json()
-#     prefs = Preferences.query.filter_by(user_id = user_id).first()
+    return jsonify({
+        "success": True,
+        "message": "user retrieve successfuly",
+        "data": user.serialize()
+    }), 200
 
-#     if prefs:
-#         #update existing preferences 
-#         for key, value in data.items():
-#             setattr(prefs, key, value)
 
-#     else: 
-#         #create new preferences
-#         prefs = Preferences(user_id = user_id, **data)
-#         db.session.add(prefs)
 
+# ------------ guide/ references for adding gym preference days & times later -------------------
+# ------------ guide/ references for adding gym preference days & times later -------------------
+# ------------ guide/ references for adding gym preference days & times later -------------------
+# ------------ guide/ references for adding gym preference days & times later -------------------
+# Add these routes to your existing routes.py
+
+# @api.route('/exercise-interests', methods=['GET'])
+# def get_exercise_interests():
+#     interests = ExerciseInterests.query.all()
+#     return jsonify([{
+#         'id': interest.id,
+#         'name': interest.name.value,
+#         'description': interest.description
+#     } for interest in interests])
+
+# @api.route('/user/exercise-interests', methods=['GET', 'PUT'])
+# @jwt_required()
+# def handle_user_exercise_interests():
+#     current_user = User.query.get(get_jwt_identity())
+    
+#     if request.method == 'GET':
+#         return jsonify([{
+#             'id': interest.id,
+#             'name': interest.name.value,
+#             'description': interest.description
+#         } for interest in current_user.exercise_interests])
+    
+#     data = request.json
+#     interest_ids = data.get('interest_ids', [])
+#     current_user.exercise_interests = []
+#     interests = ExerciseInterests.query.filter(ExerciseInterests.id.in_(interest_ids)).all()
+#     current_user.exercise_interests.extend(interests)
 #     db.session.commit()
-#     return jsonify(prefs.serialize()), 200
+#     return jsonify({'message': 'Exercise interests updated successfully'})
 
-# api.route("/feedback", methods =["POST"])
-# def create_feedback():
-#     data = request.get_json(),
-#     required_fields =["user_id", "match_id", "rating"]
-
-#     if not all(field in data for field in required_fields):
-#         return jsonify({"message": "missing required fields"}), 400
+# @api.route('/workout-schedule', methods=['POST', 'GET'])
+# @jwt_required()
+# def handle_workout_schedule():
+#     current_user = User.query.get(get_jwt_identity())
     
-#     new_feedback = UserFeedback(
-#         user_id = data["user_id"],
-#         match_id = data["match_id"],
-#         rating = data ["rating_id"],
-#         comment = data.get("comments"),
-#         submitted_on = datetime.utcnow()
+#     if request.method == 'GET':
+#         schedules = current_user.workout_schedules
+#         return jsonify([{
+#             'gym_id': schedule.gym_preference_id,
+#             'day': schedule.day_of_week.name,
+#             'time_slot': schedule.time_slot.name
+#         } for schedule in schedules])
+
+#     data = request.json
+#     schedule = WorkoutSchedule(
+#         user_id=current_user.id,
+#         gym_preference_id=data['gym_preference_id'],
+#         day_of_week=DayOfWeek[data['day_of_week']],
+#         time_slot=TimeSlot[data['time_slot']]
 #     )
-
-#     db.session.add(new_feedback)
+#     db.session.add(schedule)
 #     db.session.commit()
-#     return jsonify(new_feedback.serialize()), 201
+#     return jsonify({'message': 'Schedule created successfully'})
+
+# @api.route('/like/<int:liked_id>', methods=['POST'])
+# @jwt_required()
+# def like_user(liked_id):
+#     current_user = User.query.get(get_jwt_identity())
+#     if liked_id == current_user.id:
+#         return jsonify({'error': 'Cannot like yourself'}), 400
     
-# api.route("/reports", methods =["POST"])
-# def create_report():
-#     data = request.get_json(),
-#     required_fields =["reported_user_id", "reporter_user_id", "reason"]
-
-#     if not all(field in data for field in required_fields):
-#         return jsonify({"message": "missing required fields"}), 400
+#     existing_like = Like.query.filter_by(liker_id=current_user.id, liked_id=liked_id).first()
+#     if existing_like:
+#         return jsonify({'message': 'Already liked'}), 200
     
-#     new_report = Report(
-#         reported_by_id = data["reported_by_id"],
-#         reported_user_id = data["reported_user_id"],
-#         reason = data["reason"],
-#         report_description = data.get("report_description"),
-#         reported_on = datetime.utcnow(),
-#         is_resolved = False
-
-#     )
-
-#     db.session.add(new_report)
+#     new_like = Like(liker_id=current_user.id, liked_id=liked_id)
+#     db.session.add(new_like)
+    
+#     mutual_like = Like.query.filter_by(liker_id=liked_id, liked_id=current_user.id).first()
+#     if mutual_like:
+#         match = Match(
+#             user1_id=min(current_user.id, liked_id),
+#             user2_id=max(current_user.id, liked_id)
+#         )
+#         db.session.add(match)
+    
 #     db.session.commit()
-#     return jsonify(new_report.serialize()), 201
+#     return jsonify({
+#         'message': 'Like successful',
+#         'match_created': bool(mutual_like)
+#     })
 
-# api.route("/reports/<int:report_id>/resolved", methods= ["PUT"])
-# def resolved_report(report_id):
-#     report = Report.query.get(report_id)
-
-#     if report is None:
-#         return jsonify({"message": "REPORT_NOT_FOUND"}), 404
+# @api.route('/matches', methods=['GET'])
+# @jwt_required()
+# def get_matches():
+#     current_user = User.query.get(get_jwt_identity())
+#     matches = Match.query.filter(
+#         ((Match.user1_id == current_user.id) | (Match.user2_id == current_user.id)) &
+#         (Match.status == 'active')
+#     ).all()
     
-#     report.is_resolved = True
-#     db.session.commit()
+#     return jsonify([{
+#         'match_id': match.id,
+#         'matched_user': match.user2.serialize() if match.user1_id == current_user.id else match.user1.serialize(),
+#         'created_at': match.created_at.isoformat(),
+#         'last_interaction': match.last_interaction.isoformat() if match.last_interaction else None
+#     } for match in matches])
 
-#     return jsonify({"data":report.serialize()}), 200
-
-# api.route("/reports/<int:report_id>", methods= ["DELETE"])
-# def delete_report(report_id):
-#     report = Report.query.get(report_id)
-
-#     if report is None:
-#         return jsonify({"message": "REPORT_NOT_FOUND"}), 404
-    
+# @api.route('/potential-spotters', methods=['GET'])
+# @jwt_required()
+# def get_potential_spotters():
 #     try:
-#         db.session(report)
-#         db.session.commit()
-#         return jsonify({"message": "report deleted"}), 200
-    
-#     except Exception:
-#         db.session.rollback()
-#         return jsonify({"message": "error deleting report"}), 500
-    
+#         current_user = User.query.get(get_jwt_identity())
+#         potential_matches = User.query.filter(
+#             User.id != current_user.id,
+#             User.city == current_user.city,
+#             User.state == current_user.state
+#         ).all()
+        
+#         return jsonify([user.serialize() for user in potential_matches]), 200
+#     except Exception as e:
+#         return jsonify({"error": str(e)}), 500
+# ---------------------------------
+# @api.route('/workout-schedules/<int:gym_id>', methods=['GET'])
+# def get_workout_schedules(gym_id):
+#     schedules = WorkoutSchedule.query.filter_by(gym_preference_id=gym_id).all()
+#     return jsonify([{
+#         'day': schedule.day_of_week.name,
+#         'time_slot': schedule.time_slot.name,
+#         'start_time': schedule.preferred_start_time.isoformat() if schedule.preferred_start_time else None,
+#         'end_time': schedule.preferred_end_time.isoformat() if schedule.preferred_end_time else None
+#     } for schedule in schedules])
+# ----------------------------------
+# ---------------------------------
+# Add exercise interests to a user
+# user.exercise_interests.append(exercise_interest)
+
+# Add gym preferences to a user
+# user.gym_preferences.append(gym_preference)
+
+# Create a workout schedule
+# workout_schedule = WorkoutSchedule(
+#     user=user,
+#     gym_preference=gym_preference,
+#     day_of_week=DayOfWeek.MONDAY,
+#     time_slot=TimeSlot.MORNING
+# )
+# -------------------------------
