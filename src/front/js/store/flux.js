@@ -147,6 +147,45 @@ const getState = ({ getStore, getActions, setStore }) => {
 					};
 				}
 			},
+			getProfile: async () => {
+                try {
+                    const token = localStorage.getItem("token");
+                    const response = await fetch(process.env.BACKEND_URL + "/api/check-profile", {
+                        method: "GET",
+                        headers: {
+                            "Content-Type": "application/json",
+                            Authorization: `Bearer ${token}`
+                        }
+                    });
+                    if (response.ok) {
+                        const data = await response.json();
+                        return data;
+                    } else {
+                        console.log("Failed to fetch profile");
+                    }
+                } catch (error) {
+                    console.error("Error fetching profile:", error);
+                }
+            },
+
+            updateProfile: async (profileData) => {
+                try {
+                    const token = localStorage.getItem("token");
+                    const response = await fetch(process.env.BACKEND_URL + "/api/edit-profile", {
+                        method: "PUT",
+                        headers: {
+                            "Content-Type": "application/json",
+                            Authorization: `Bearer ${token}`
+                        },
+                        body: JSON.stringify(profileData)
+                    });
+                    return response.ok;
+                } catch (error) {
+                    console.error("Error updating profile:", error);
+                    return false;
+                }
+            }
+
 
 		}
 	};

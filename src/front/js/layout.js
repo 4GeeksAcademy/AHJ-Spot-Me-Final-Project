@@ -16,6 +16,8 @@ import { Signup } from "./pages/signup";
 import { ForgotPassword } from "./component/forgotpasswordform";
 import { ResetPassword } from "./component/resetpasswordform.js";
 import Profile2 from "./pages/Profile2";
+
+import { Profile } from "./pages/profile";
 import UserProfile from "./pages/UserProfile";
 import SpotterProfiles from "./pages/SpotterProfiles";
 import ContactUs from "./pages/ContactUs"; 
@@ -37,6 +39,7 @@ const Layout = () => {
                             <Route element={<Login />} path="/login" />
                             <Route element={<Signup />} path="/signup" />
                             <Route element={<ForgotPassword />} path="/forgot-password" />
+                            <Route element={<Profile />} path="/profile" />
                             <Route element={<ResetPassword />} path="/reset-password" />
                             <Route element={<Profile2 />} path="/matches" /> {/* Added route for /matches */}
                             <Route element={<Spotters />} path="/spotters" />
