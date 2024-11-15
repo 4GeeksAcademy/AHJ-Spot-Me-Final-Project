@@ -1,7 +1,7 @@
 from flask_sqlalchemy import SQLAlchemy
 import datetime
 from enum import Enum
-from datetime import time, datetime
+from datetime import datetime
 
 db = SQLAlchemy()
 
@@ -53,12 +53,12 @@ class Gender(Enum):
     PREFER_NOT_TO_SAY = 'prefer_not_to_say'
 
 
+# Models
 class ExerciseInterests(db.Model):
     __tablename__ = 'exercise_interests'
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.Enum(ExerciseCategory), unique=True, nullable=False)
-    description = db.Column(db.stregnth)
-
+    description = db.Column(db.String)
 
     users = db.relationship('User', 
                           secondary=user_exercise_interests,
@@ -99,16 +99,18 @@ class GymPreference(db.Model):
     city = db.Column(db.String, nullable=False)
     state = db.Column(db.String, nullable=False)
 
-    # latitude = db.Column(db.Float, nullable=True)
+    latitude = db.Column(db.Float, nullable=True)
     longitude = db.Column(db.Float, nullable=True)
 
+    # Relationships
+    workout_schedules = db.relationship('WorkoutSchedule', 
+                                      back_populates='gym_preference',
+                                      cascade='all, delete-orphan')
+    users = db.relationship('User',
+                          secondary=user_gym_preferences,
+                          back_populates='gym_preferences')
 
-
-
-
-
-
-    # Relationships    workout_schedules = db.relationship('WorkoutSchedule', back_populates='gym_preference', cascade='all, delete-orphan')    users = db.relationship('User',                          secondary=user_gym_preferences,                          back_populates='gym_preferences')class WorkoutSchedule(db.Model):
+class WorkoutSchedule(db.Model):                         
     __tablename__ = 'workout_schedule'
     id = db.Column(db.Integer, primary_key=True)
     gym_preference_id = db.Column(db.Integer, db.ForeignKey('gym_preference.id'), nullable=False)
@@ -135,7 +137,7 @@ class Like(db.Model):
     id = db.Column (db.Integer, primary_key = True)
     liker_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable = False)
     liked_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable = False)
-    created_at = db.Column(db.DateTime, default=datetime.datetime.utcnow)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
    
 
 
@@ -152,7 +154,7 @@ class Match(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     user1_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable = False)
     user2_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable = False)
-    created_on = db.Column(db.DateTime, default=datetime.datetime.utcnow)
+    created_on = db.Column(db.DateTime, default=datetime.utcnow)
     status = db.Column(db.String, default = 'active')#active, archive, blocked
     last_interaction = db.Column(db.DateTime)
 
@@ -174,9 +176,7 @@ class User(db.Model):
     password_hash = db.Column(db.String)
     state = db.Column(db.String(50))
     city = db.Column(db.String(100))
-    # Gender (dropdown as string)
-    gender = db.Column(db.String)
-
+    gender = db.Column(db.Enum(Gender))
     age = db.Column(db.Integer)
     bio = db.Column(db.String)
 
