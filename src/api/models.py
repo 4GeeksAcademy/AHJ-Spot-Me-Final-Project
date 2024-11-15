@@ -7,12 +7,12 @@ db = SQLAlchemy()
 
 
 # Association Tables
-user_exercise_interests = db.Table('user_exercise_interersts',
+user_exercise_interests = db.Table('user_exercise_interests',
     db.Column('user_id', db.Integer, db.ForeignKey('user.id'), primary_key = True),
     db.Column('exercise_interest_id', db.Integer, db.ForeignKey('exercise_interests.id'), primary_key = True)
 )
 
-user_gym_preferences = db.table('user_gym_preferences', 
+user_gym_preferences = db.Table('user_gym_preferences', 
     db.Column('user_id', db.Integer, db.ForeignKey('user.id'), primary_key = True),
     db.Column('gym_preference_id', db.Integer, db.ForeignKey('gym_preference.id'), primary_key = True)                     
                                )
@@ -121,12 +121,7 @@ class WorkoutSchedule(db.Model):
     # Relationship back to gym preference
     gym_preference = db.relationship('GymPreference', back_populates='workout_schedules')
     user = db.relationship('User', back_populates='workout_schedules')
-    
-    class Meta:
-        # Ensure no duplicate day/time combinations for the same gym
-        __table_args__ = (
-            db.UniqueConstraint('gym_preference_id', 'day_of_week', 'time_slot'),
-        )
+
 
     __table_args__ = (
         db.UniqueConstraint('gym_preference_id', 'user_id', 'day_of_week', 'time_slot'),
@@ -142,27 +137,27 @@ class Like(db.Model):
 
 
     liker = db.relationship("User", foreign_keys=[liker_id], backref="likes_given")
-    liked = db.relationship("User", foreign_keys=[liked_id], backref= 'likes_received')
+    liked = db.relationship("User", foreign_keys=[liked_id], backref= "likes_received")
 
     __table_args__ = (
-        db.UniqueConstraint('liker_id', 'user2_id', name = 'unique_like')
+        db.UniqueConstraint('liker_id', 'liked_id', name = 'unique_like'),
     )
 
 # Match Table
 class Match(db.Model):
-    __tablename__ = 'match'
+    __tablename__ = 'matches'
     id = db.Column(db.Integer, primary_key=True)
     user1_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable = False)
     user2_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable = False)
-    created_on = db.Column(db.DateTime, default=datetime.utcnow)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
     status = db.Column(db.String, default = 'active')#active, archive, blocked
     last_interaction = db.Column(db.DateTime)
 
     user1 = db.relationship("User", foreign_keys=[user1_id], back_populates="matches_initiated")
-    user2 = db.relationship("User", foreign_keys=[user2_id], backref= 'matches_received')
+    user2 = db.relationship("User", foreign_keys=[user2_id], back_populates= 'matches_received')
 
     __table_args__ = (
-        db.UniqueConstraint('user1_id', 'user2_id', name = 'unique_match')
+        db.UniqueConstraint('user1_id', 'user2_id', name = 'unique_match'),
     )
 
 
@@ -204,6 +199,10 @@ class User(db.Model):
     matches_initiated = db.relationship('Match',
                                         foreign_keys = [Match.user1_id],
                                         back_populates = 'user1')
+    
+    matches_received = db.relationship('Match',
+                                        foreign_keys = [Match.user2_id],
+                                        back_populates = 'user2')
 
     def serialize(self, include_relations=False):
         """
