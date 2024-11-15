@@ -55,23 +55,22 @@ setup_commands(app)
 # Add all endpoints form the API with a "api" prefix
 app.register_blueprint(api, url_prefix='/api')
 
+# Setup the Flask-JWT-Extended extension
+app.config["JWT_SECRET_KEY"] = os.environ.get("JWT_SECRET_KEY")  # Change in production
+app.config["JWT_BLACKLIST_ENABLED"] = True
+app.config["JWT_BLACKLIST_TOKEN_CHECKS"] = ["access"]
+
+jwt = JWTManager(app)
+
 @jwt.token_in_blocklist_loader # Runs every time a private request is made
 def check_if_token_in_blacklist(jwt_header, jwt_payload):
-    jti = jwt_payload['jti']
+    jti = jwt_payload["jti"]
     return jti in blacklist
 
-
 # Handle/serialize errors like a JSON object
-
 @app.errorhandler(APIException)
 def handle_invalid_usage(error):
     return jsonify(error.to_dict()), error.status_code
-
-
-
-# Setup the Flask-JWT-Extended extension
-app.config["JWT_SECRET_KEY"] = "super-secret"  # Change this!
-jwt = JWTManager(app)
 
 # generate sitemap with all your endpoints
 @app.route('/')
@@ -81,7 +80,6 @@ def sitemap():
     return send_from_directory(static_file_dir, 'index.html')
 
 # any other endpoint will try to serve it like a static file
-
 
 @app.route('/<path:path>', methods=['GET'])
 def serve_any_other_file(path):

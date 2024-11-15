@@ -1,3 +1,19 @@
-/* 
-    General Styles used on every website (Don't Repeat Yourself)
-*/
+/* Ensure the layout takes the full height */
+.layout-wrapper {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+
+/* Main content area, flex-grow pushes footer to the bottom */
+.content-wrapper {
+    flex: 1;
+}
+
+/* Footer styling */
+footer {
+    background-color: #333;
+    color: white;
+    padding: 20px;
+    text-align: center;
+}

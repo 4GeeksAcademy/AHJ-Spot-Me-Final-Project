@@ -1,7 +1,206 @@
-/*
-    home.css: This website contains selectors only used in home.css
+/* src/styles/home.css */
 
-    All pages share the styles on index.css but you should create 
-    one more css for each page that will contain the selected used 
-    on that page only (the ones not reused in other pages).
-*/
+/* Hero Section */
+.hero-section {
+    position: relative;
+    width: 100%;
+    height: 100vh;
+    overflow: hidden;
+}
+
+.hero-video {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.hero-overlay {
+    position: absolute;
+    top: 0;
+    right: 0; /* Position the overlay on the right side */
+    width: 40%; /* Adjust the width as desired */
+    height: 100%;
+    background-color: rgba(255, 255, 255, 0.7); /* Translucent white overlay */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    box-shadow: -2px 0 10px rgba(0, 0, 0, 0.2); /* Shadow on the left side for distinction */
+}
+
+
+
+.hero-content {
+    max-width: 500px;
+    text-align: center;
+    padding: 20px;
+}
+
+.hero-content h1 {
+    font-size: 2.5rem;
+    font-weight: bold;
+    color: #333; /* Dark text color */
+    margin-bottom: 10px;
+}
+
+.hero-content p {
+    font-size: 1.2rem;
+    color: #555;
+    margin-bottom: 20px;
+}
+
+.hero-content .btn {
+    background-color: #ff914d;
+    color: white;
+    padding: 10px 20px;
+    font-size: 1rem;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.hero-content .btn:hover {
+    background-color: #e67b2f; /* Darker orange on hover */
+}
+
+/* Features Section */
+.features-section {
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+    padding: 40px 20px;
+    background-color: #f9f9f9;
+}
+
+.feature-card {
+    background-color: #ffffff;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    padding: 20px;
+    text-align: center;
+    width: 250px;
+}
+
+.feature-card .feature-icon {
+    font-size: 2rem;
+    color: #ff914d; /* Orange checkmark */
+    display: block;
+    margin-bottom: 10px;
+}
+
+
+
+.feature-card h3 {
+    font-size: 1.5rem;
+    color: #00796b; /* Dark teal color */
+}
+
+/* CTA Section */
+.cta-section {
+    position: relative;
+    width: 100%; /* Ensure full-width responsiveness */
+    height: 250px; /* Adjust height as needed or use min-height for flexibility */
+    background-color: #ff914d; /* Orange background */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    overflow: hidden; /* Ensures the overlay fills the container */
+}
+
+.cta-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(255, 255, 255, 0.7); /* Translucent white overlay */
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    box-sizing: border-box;
+}
+
+.cta-overlay h2 {
+    font-size: 1.8rem;
+    color: #333;
+    margin-bottom: 10px;
+}
+
+.cta-overlay .quote {
+    font-size: 1.8rem; /* Increased font size for the quote */
+    color: #555;
+    font-style: italic;
+    max-width: 800px; /* Optional: To control line length */
+    text-align: center;
+}
+
+
+/* Contact Form Section */
+.contact-section {
+    padding: 60px 20px;
+    background-color: #f9f9f9;
+    text-align: center;
+}
+
+.contact-section h3 {
+    font-size: 2rem;
+    color: #00796b;
+    margin-bottom: 30px;
+}
+
+.contact-section form {
+    max-width: 500px;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+.contact-form-row {
+    display: flex;
+    gap: 10px; /* Space between the input fields */
+    margin-bottom: 20px;
+    justify-content: center; /* Centers the row */
+    width: 100%; /* Ensures the row takes up full width of parent */
+}
+.contact-section input[type="email"],
+.contact-section input[type="text"] {
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 1rem;
+    color: #333;
+    background-color: #f9f9f9;
+}
+
+.contact-section .btn-secondary {
+    background-color: #ff914d;
+    color: white;
+    padding: 10px 20px;
+    font-size: 1rem;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.subscribe-button {
+    background-color: #ff914d; /* Orange color */
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 1rem;
+    transition: background-color 0.3s ease;
+}
+
+.subscribe-button:hover {
+    background-color: #e67b2f; /* Darker orange on hover */
+}

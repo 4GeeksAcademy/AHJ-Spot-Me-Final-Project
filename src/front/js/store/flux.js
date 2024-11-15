@@ -2,6 +2,7 @@ const getState = ({ getStore, getActions, setStore }) => {
 	return {
 		store: {
 			users: [],
+			message: null
 		},
 		actions: {
 			getAllUsers: () => {
@@ -28,14 +29,14 @@ const getState = ({ getStore, getActions, setStore }) => {
 						})
 					});
 					const data = await response.json();
-					
+
 					if (response.status === 201) {
-						return { 
-							success: true, 
-							message: "Signup successful! Please login to continue." 
+						return {
+							success: true,
+							message: "Signup successful! Please login to continue."
 						};
 					}
-					
+
 					return {
 						success: false,
 						message: data.error || "Signup failed"
@@ -54,9 +55,9 @@ const getState = ({ getStore, getActions, setStore }) => {
 					method: "POST",
 					headers: { "Content-Type": "application/json" },
 					body: JSON.stringify(
-						{ 
-							email: email.toLowerCase(), 
-							password: password 
+						{
+							email: email.toLowerCase(),
+							password: password
 						}
 					)
 				})
@@ -71,10 +72,81 @@ const getState = ({ getStore, getActions, setStore }) => {
 				return true
 			},
 
-			logOut: () => {
-				localStorage.removeItem("token");
+			logout: async () => {
+				try {
+					const token = localStorage.getItem("token");
+					if (!token) return true;
+
+					const response = await fetch(process.env.BACKEND_URL + "/api/logout", {
+						method: "POST",
+						headers: {
+							"Authorization": `Bearer ${token}`
+						}
+					});
+
+					if (response.status === 200) {
+						localStorage.removeItem("token");
+						localStorage.removeItem("authToken");
+						return true;
+					}
+					localStorage.removeItem("token");
+					localStorage.removeItem("authToken");
+
+					return false;
+				} catch (error) {
+					console.error("Logout error:", error);
+					return false;
+				}
+			},
+			forgotPassword: async (email) => {
+				try {
+					const response = await fetch(`${process.env.BACKEND_URL}/api/forgot-password`, {
+						method: "POST",
+						headers: {
+							"Content-Type": "application/json",
+						},
+						body: JSON.stringify({ email: email.toLowerCase() })
+					});
+
+					const data = await response.json();
+
+					return {
+						success: response.status === 200,
+						message: data.message
+					};
+				} catch (error) {
+					console.error("Forgot password error:", error);
+					return {
+						success: false,
+						message: "An error occurred while processing your request"
+					};
+				}
 			},
 
+			resetPassword: async (token, password) => {
+				try {
+					const response = await fetch(`${process.env.BACKEND_URL}/api/reset-password/${token}`, {
+						method: "PUT",
+						headers: {
+							"Content-Type": "application/json",
+						},
+						body: JSON.stringify({ password })
+					});
+
+					const data = await response.json();
+
+					return {
+						success: response.status === 200,
+						message: data.message
+					};
+				} catch (error) {
+					console.error("Reset password error:", error);
+					return {
+						success: false,
+						message: "An error occurred while resetting your password"
+					};
+				}
+			},
 			getProfile: async () => {
                 try {
                     const token = localStorage.getItem("token");
@@ -113,6 +185,8 @@ const getState = ({ getStore, getActions, setStore }) => {
                     return false;
                 }
             }
+
+
 		}
 	};
 };

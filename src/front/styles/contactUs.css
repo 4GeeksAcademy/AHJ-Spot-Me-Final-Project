@@ -1,0 +1,89 @@
+/* contactUs.css */
+
+.contact-us {
+    max-width: 900px;
+    margin: 60px auto; /* Adds space between navbar and content */
+    padding: 20px;
+    text-align: center;
+    color: #333333;
+    background-color: #f9f9f9;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.contact-us h2 {
+    font-size: 2.5rem;
+    color: #00796b;
+    margin-bottom: 40px;
+}
+
+.developer-cards-container {
+    display: flex;
+    justify-content: center;
+    gap: 40px; /* Adds space between the cards */
+    flex-wrap: wrap;
+}
+
+.developer-card {
+    flex: 1;
+    max-width: 300px; /* Increased width for alignment */
+    padding: 30px;
+    padding-bottom: 50px; /* Adds space at the bottom of the card */
+    border-radius: 8px;
+    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+    background-color: #ffffff;
+    text-align: center;
+    position: relative;
+}
+
+.developer-image {
+    margin-bottom: 15px;
+}
+
+.developer-card h3 {
+    color: #00796b;
+    font-size: 1.7rem;
+    margin-bottom: 15px;
+}
+
+.developer-card p {
+    font-size: 1rem;
+    color: #555555;
+    margin-bottom: 30px;
+    min-height: 60px; /* Ensures all descriptions align */
+}
+
+.links {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+    margin-top: auto; /* Pushes links to the bottom of the card */
+    position: absolute;
+    bottom: 20px; /* Ensures 20px gap from the bottom */
+    left: 0;
+    right: 0;
+}
+
+.github-link, .linkedin-link {
+    display: inline-block;
+    color: #ff914d;
+    font-size: 1.2rem;
+    text-decoration: none;
+    transition: color 0.3s ease;
+}
+
+.github-link:hover {
+    color: #e67b2f;
+}
+
+.linkedin-link {
+    color: #0077b5;
+}
+
+.linkedin-link:hover {
+    color: #005582;
+}
+
+.github-link i, .linkedin-link i {
+    margin-right: 5px;
+}

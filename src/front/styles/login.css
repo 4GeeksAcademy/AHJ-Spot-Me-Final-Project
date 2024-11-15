@@ -1,0 +1,72 @@
+/* Center the main login container */
+.login-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: calc(100vh - 80px); /* Full screen minus navbar height */
+    padding-top: 20px;
+}
+
+/* Style the login card */
+.login-card {
+    width: 400px; /* Make the login card larger */
+    padding: 30px;
+    background-color: #ffffff;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    border-radius: 10px;
+}
+
+/* Title styling */
+.login-card .card-title {
+    font-size: 24px;
+    font-weight: bold;
+    margin-bottom: 20px;
+    color: #1f1f1f; /* Match your color scheme */
+}
+
+/* Style for buttons */
+.login-card .btn {
+    padding: 10px;
+    font-size: 16px;
+}
+
+/* Style the Google sign-in button */
+.google-signin-button {
+    width: 100%;
+    margin-top: 10px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 16px;
+    border: 1px solid #d3d3d3;
+    padding: 10px;
+    background-color: #f5f5f5;
+    border-radius: 5px;
+}
+
+/* Forgot Password link styling */
+.forgot-password-link {
+    font-size: 14px;
+    color: #007bff;
+    text-decoration: none;
+    display: block;
+    text-align: center;
+    margin-top: 15px;
+}
+
+.forgot-password-link:hover {
+    color: #0056b3;
+}
+
+/* Sign Out button styling */
+.login-card .btn-secondary {
+    margin-top: 15px;
+}
+
+/* Media Query for Responsiveness */
+@media (max-width: 500px) {
+    .login-card {
+        width: 100%; /* Make it responsive on smaller screens */
+        margin: 0 10px;
+    }
+}
