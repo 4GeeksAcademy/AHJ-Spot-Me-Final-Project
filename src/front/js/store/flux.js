@@ -2,6 +2,7 @@ const getState = ({ getStore, getActions, setStore }) => {
 	return {
 		store: {
 			users: [],
+			token: localStorage.getItem("token") || null,
 			message: null
 		},
 		actions: {
@@ -69,6 +70,7 @@ const getState = ({ getStore, getActions, setStore }) => {
 				let data = await response.json()
 				console.log(data)
 				localStorage.setItem("token", data.access_token)
+				setStore({ token: data.access_token })
 				return true
 			},
 
