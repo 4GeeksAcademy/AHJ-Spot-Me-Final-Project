@@ -318,7 +318,98 @@ def get_user_info(user_id):
         "data": user.serialize()
     }), 200
 
+@api.route('/liked-users', methods=['GET'])
+@jwt_required()
+def get_liked_users():
+    current_user = User.query.get(get_jwt_identity())
+    
+    # Get all likes by the current user
+    likes = Like.query.filter_by(liker_id=current_user.id).all()
+    
+    # Get the corresponding users and check if they've liked back
+    liked_users = []
+    for like in likes:
+        liked_user = User.query.get(like.liked_id)
+        if liked_user:
+            user_data = liked_user.serialize()
+            # Check if the liked user has liked back
+            has_liked_back = Like.query.filter_by(
+                liker_id=liked_user.id,
+                liked_id=current_user.id
+            ).first() is not None
+            user_data['has_liked_back'] = has_liked_back
+            liked_users.append(user_data)
+    
+    return jsonify(liked_users)
 
+@api.route('/like/<int:liked_id>', methods=['POST'])
+@jwt_required()
+def like_user(liked_id):
+    current_user = User.query.get(get_jwt_identity())
+    if liked_id == current_user.id:
+        return jsonify({'error': 'Cannot like yourself'}), 400
+    
+    existing_like = Like.query.filter_by(liker_id=current_user.id, liked_id=liked_id).first()
+    if existing_like:
+        return jsonify({'message': 'Already liked'}), 200
+    
+    new_like = Like(liker_id=current_user.id, liked_id=liked_id)
+    db.session.add(new_like)
+    
+    mutual_like = Like.query.filter_by(liker_id=liked_id, liked_id=current_user.id).first()
+    if mutual_like:
+        match = Match(
+            user1_id=min(current_user.id, liked_id),
+            user2_id=max(current_user.id, liked_id)
+        )
+        db.session.add(match)
+    
+    db.session.commit()
+    return jsonify({
+        'message': 'Like successful',
+        'match_created': bool(mutual_like)
+    })
+
+@api.route('/matches', methods=['GET'])
+@jwt_required()
+def get_matches():
+    current_user = User.query.get(get_jwt_identity())
+    matches = Match.query.filter(
+        ((Match.user1_id == current_user.id) | (Match.user2_id == current_user.id)) &
+        (Match.status == 'active')
+    ).all()
+    
+    return jsonify([{
+        'match_id': match.id,
+        'matched_user': match.user2.serialize() if match.user1_id == current_user.id else match.user1.serialize(),
+        'created_at': match.created_at.isoformat(),
+        'last_interaction': match.last_interaction.isoformat() if match.last_interaction else None
+    } for match in matches])
+
+@api.route('/potential-spotters', methods=['GET'])
+@jwt_required()
+def get_potential_spotters():
+    try:
+        current_user = User.query.get(get_jwt_identity())
+
+        # Get IDs of users that current user has already liked or matched with
+        liked_users = db.session.query(Like.liked_id).filter(Like.liker_id == current_user.id)
+        matched_users = db.session.query(Match.user2_id).filter(Match.user1_id == current_user.id).union(
+            db.session.query(Match.user1_id).filter(Match.user2_id == current_user.id)
+        )
+
+        # Get potential matches excluding already liked/matched users
+        potential_matches = User.query.filter(
+            User.id != current_user.id,
+            User.city == current_user.city,
+            User.state == current_user.state,
+            ~User.id.in_(liked_users),
+            ~User.id.in_(matched_users)
+        ).all()
+        
+        return jsonify([user.serialize() for user in potential_matches]), 200
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
 
 # ------------ guide/ references for adding gym preference days & times later -------------------
 # ------------ guide/ references for adding gym preference days & times later -------------------
@@ -379,64 +470,6 @@ def get_user_info(user_id):
 #     db.session.commit()
 #     return jsonify({'message': 'Schedule created successfully'})
 
-# @api.route('/like/<int:liked_id>', methods=['POST'])
-# @jwt_required()
-# def like_user(liked_id):
-#     current_user = User.query.get(get_jwt_identity())
-#     if liked_id == current_user.id:
-#         return jsonify({'error': 'Cannot like yourself'}), 400
-    
-#     existing_like = Like.query.filter_by(liker_id=current_user.id, liked_id=liked_id).first()
-#     if existing_like:
-#         return jsonify({'message': 'Already liked'}), 200
-    
-#     new_like = Like(liker_id=current_user.id, liked_id=liked_id)
-#     db.session.add(new_like)
-    
-#     mutual_like = Like.query.filter_by(liker_id=liked_id, liked_id=current_user.id).first()
-#     if mutual_like:
-#         match = Match(
-#             user1_id=min(current_user.id, liked_id),
-#             user2_id=max(current_user.id, liked_id)
-#         )
-#         db.session.add(match)
-    
-#     db.session.commit()
-#     return jsonify({
-#         'message': 'Like successful',
-#         'match_created': bool(mutual_like)
-#     })
-
-# @api.route('/matches', methods=['GET'])
-# @jwt_required()
-# def get_matches():
-#     current_user = User.query.get(get_jwt_identity())
-#     matches = Match.query.filter(
-#         ((Match.user1_id == current_user.id) | (Match.user2_id == current_user.id)) &
-#         (Match.status == 'active')
-#     ).all()
-    
-#     return jsonify([{
-#         'match_id': match.id,
-#         'matched_user': match.user2.serialize() if match.user1_id == current_user.id else match.user1.serialize(),
-#         'created_at': match.created_at.isoformat(),
-#         'last_interaction': match.last_interaction.isoformat() if match.last_interaction else None
-#     } for match in matches])
-
-# @api.route('/potential-spotters', methods=['GET'])
-# @jwt_required()
-# def get_potential_spotters():
-#     try:
-#         current_user = User.query.get(get_jwt_identity())
-#         potential_matches = User.query.filter(
-#             User.id != current_user.id,
-#             User.city == current_user.city,
-#             User.state == current_user.state
-#         ).all()
-        
-#         return jsonify([user.serialize() for user in potential_matches]), 200
-#     except Exception as e:
-#         return jsonify({"error": str(e)}), 500
 # ---------------------------------
 # @api.route('/workout-schedules/<int:gym_id>', methods=['GET'])
 # def get_workout_schedules(gym_id):

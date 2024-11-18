@@ -1,9 +1,11 @@
 // src/pages/SpotterProfiles.js
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
+import { Context } from "../store/appContext";
 import SpotterCard from "../component/spotterCard";
 import "../../styles/spotterProfiles.css";
 
 const SpotterProfiles = () => {
+    const { store, actions } = useContext(Context)
     const [filters, setFilters] = useState({
         name: "",
         age: "",
@@ -15,6 +17,11 @@ const SpotterProfiles = () => {
         preferredTime: "",
         preferredSpottingStyle: ""
     });
+
+    useEffect(() => {
+        // actions.getPotentialSpotters();
+        actions.getAllUsers();
+    }, [])
 
     const handleInputChange = (e) => {
         const { name, value } = e.target;
@@ -167,9 +174,21 @@ const SpotterProfiles = () => {
             </div>
 
             <div className="profile-cards">
-                {filteredSpotters.length > 0 ? (
-                    filteredSpotters.map((spotter, index) => (
-                        <SpotterCard key={index} spotter={spotter} />
+                {/* {filteredSpotters.length > 0 ? (
+                    filteredSpotters.map((spotter, index) => ( */}
+                {store.users && store.users.length > 0 ? (
+                    store.users.map((spotter, index) => (
+                        // <SpotterCard key={index} spotter={spotter} />
+                        <SpotterCard
+                            key={index}
+                            spotter={{
+                                id: spotter.id,
+                                name: spotter.name || 'Anonymous',
+                                gender: spotter.gender || 'unknown',
+                                state: spotter.state || '',
+                                city: spotter.city || '',
+                            }}
+                        />
                     ))
                 ) : (
                     <p>No spotters found with the selected filters.</p>
