@@ -1,4 +1,97 @@
+/* src/styles/profile2.css */
 
+/* Container styling */
+.matches-container {
+    max-width: 1200px;
+    margin: 40px auto;
+    padding: 0 20px;
+}
+
+/* Header styling */
+.matches-header {
+    text-align: center;
+    margin-bottom: 40px;
+    color: #00796b;
+}
+
+.matches-header h1 {
+    font-size: 2.5rem;
+    font-weight: bold;
+}
+
+/* Card grid styling */
+.card-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 25px;
+    padding: 20px 0;
+}
+
+/* Card styling */
+.card {
+    background-color: #ffffff;
+    border: none;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    overflow: hidden;
+}
+
+.card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+}
+
+/* Match image styling */
+.match-image {
+    width: 150px;
+    height: 150px;
+    border-radius: 50%;
+    margin: 20px auto;
+    object-fit: cover;
+    border: 3px solid #f8f9fa;
+}
+
+/* Card content styling */
+.card h3 {
+    color: #00796b;
+    font-size: 1.5rem;
+    margin: 15px 0;
+    font-weight: 600;
+}
+
+.card p {
+    color: #555555;
+    margin: 8px 0;
+    font-size: 1rem;
+    line-height: 1.4;
+}
+
+/* No matches message styling */
+.no-matches {
+    text-align: center;
+    color: #666;
+    font-size: 1.2rem;
+    padding: 40px;
+    background-color: #f8f9fa;
+    border-radius: 8px;
+    margin: 20px 0;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .card-grid {
+        grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+        gap: 20px;
+        padding: 15px;
+    }
+
+    .matches-header h1 {
+        font-size: 2rem;
+    }
+}
+
+/* 
 .card-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
@@ -21,4 +114,4 @@
 
 .card p {
     margin: 8px 0;
-}
+} */
