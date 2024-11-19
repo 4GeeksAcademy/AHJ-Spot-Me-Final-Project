@@ -56,14 +56,20 @@
     background: none;
     font-size: 1rem;
     color: #ff914d; /* Orange color for logout button */
-    transition: color 0.3s ease;
+    transition: color 0.3s ease, background-color 0.3s ease;
     cursor: pointer;
-    margin-top: 2px; /* Slightly adjust vertical alignment */
+    text-decoration: none; /* Remove underline */
+    outline: none; /* Remove focus outline */
+    box-shadow: none; /* Remove focus/hover box shadow */
 }
 
 .navbar-nav .btn-link.nav-link:hover {
-    color: #e67b2f; /* Darker orange on hover */
+    color: #ffffff; /* White text on hover */
+    background-color: #ff914d; /* Orange background on hover */
+    border-radius: 4px; /* Optional: rounded corners for hover effect */
+    box-shadow: none; /* Remove hover box shadow */
 }
+
 
 .navbar-toggler {
     border: none;
