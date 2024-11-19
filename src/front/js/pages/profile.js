@@ -9,6 +9,8 @@ export const Profile = () => {
         gender: "",
         name: "",
         email: "",
+        state: "",
+        city: "",
         // profile_picture: ""
 
     });
@@ -22,7 +24,9 @@ export const Profile = () => {
                     bio: data.bio,
                     gender: data.gender,
                     name: data.name,
-                    email: data.email
+                    email: data.email,
+                    state: data.state,
+                    city: data.city,
                     // profile_picture: data.profile_picture
                 });
             }
@@ -77,6 +81,14 @@ export const Profile = () => {
                 <div className="form-group">
                     <label>Bio</label>
                     <textarea name="bio" value={profile.bio} onChange={handleChange} className="form-control" />
+                </div>
+                <div className="form-group">
+                    <label>State</label>
+                    <input type="text" name="state" value={profile.state} onChange={handleChange} className="form-control" />
+                </div>
+                <div className="form-group">
+                    <label>City</label>
+                    <input type="text" name="city" value={profile.city} onChange={handleChange} className="form-control" />
                 </div>
                 {/* <div className="form-group">
                     <label>Profile Picture URL</label>

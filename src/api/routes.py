@@ -270,6 +270,13 @@ def edit_profile():
                 current_user.gender = Gender(request_data['gender'])
             except ValueError:
                 return jsonify({"error": "Gender must be 'male', 'female', or 'other'."}), 400
+            
+
+        if 'city' in request_data:
+            current_user.city = request_data['city']
+
+        if 'state' in request_data:
+            current_user.state = request_data['state']
 
         # Validate name
         if 'name' in request_data:

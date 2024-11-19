@@ -8,13 +8,10 @@ const UserProfile = () => {
         name: "",
         age: "",
         bio: "",
-        gender: null,
+        gender: "",
         email: "",
-        city: "",
-        state: "",
         exercise_interests: [],
-        gym_preferences: [],
-        profile_image: null,
+        gym_preferences: []
     });
 
     const [isEditing, setIsEditing] = useState(false);
@@ -71,16 +68,12 @@ const UserProfile = () => {
                     name: formData.name,
                     bio: formData.bio,
                     age: parseInt(formData.age),
-                    gender: formData.gender,
-                    city: formData.city,
-                    state: formData.state, 
+                    gender: formData.gender
                 })
             });
 
-            const data = await response.json();
-            console.log('response data:', data)
-            if (response.ok && data.user) {
-                // const data = await response.json();
+            if (response.ok) {
+                const data = await response.json();
                 setProfile(data.user);
                 setIsEditing(false);
                 setError(null);
@@ -147,24 +140,6 @@ const UserProfile = () => {
                                 <option value="non_binary">Non-binary</option>
                                 <option value="prefer_not_to_say">Prefer not to say</option>
                             </select>
-                            <label>
-                            City:
-                            <input
-                                type="text"
-                                name="city"
-                                value={formData.city}
-                                onChange={handleChange}
-                            />
-                        </label>
-                        <label>
-                            State:
-                            <input
-                                type="text"
-                                name="state"
-                                value={formData.state}
-                                onChange={handleChange}
-                            />
-                        </label>
                         </label>
                         <div className="button-group">
                             <button onClick={handleSave} className="btn btn-primary">Save</button>
@@ -180,8 +155,7 @@ const UserProfile = () => {
                         <p><strong>Age:</strong> {profile.age}</p>
                         <p><strong>Gender:</strong> {profile.gender}</p>
                         <p><strong>Bio:</strong> {profile.bio}</p>
-                        <p><strong>City:</strong> {profile.city}</p>
-                        <p><strong>State:</strong> {profile.state}</p>
+                        
                         {profile.exercise_interests && profile.exercise_interests.length > 0 && (
                             <p><strong>Exercise Interests:</strong> {profile.exercise_interests.map(interest => interest.name).join(", ")}</p>
                         )}
