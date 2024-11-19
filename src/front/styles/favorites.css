@@ -54,3 +54,24 @@
 .btn-view-profile:hover {
     background-color: #e67b2f;
 }
+
+.match-badge {
+    background-color: #4CAF50;
+    color: white;
+    padding: 5px 10px;
+    border-radius: 15px;
+    font-size: 0.9em;
+}
+
+.pending-badge {
+    background-color: #FFA500;
+    color: white;
+    padding: 5px 10px;
+    border-radius: 15px;
+    font-size: 0.9em;
+}
+
+.match-status {
+    margin-top: 10px;
+    text-align: center;
+}

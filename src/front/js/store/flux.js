@@ -3,6 +3,9 @@ const getState = ({ getStore, getActions, setStore }) => {
 		store: {
 			users: [],
 			token: localStorage.getItem("token") || null,
+			favorites: [],
+			matches: [],
+			likedUsers: [],
 			message: null
 		},
 		actions: {
@@ -150,43 +153,114 @@ const getState = ({ getStore, getActions, setStore }) => {
 				}
 			},
 			getProfile: async () => {
-                try {
-                    const token = localStorage.getItem("token");
-                    const response = await fetch(process.env.BACKEND_URL + "/api/check-profile", {
-                        method: "GET",
-                        headers: {
-                            "Content-Type": "application/json",
-                            Authorization: `Bearer ${token}`
-                        }
-                    });
-                    if (response.ok) {
-                        const data = await response.json();
-                        return data;
-                    } else {
-                        console.log("Failed to fetch profile");
-                    }
-                } catch (error) {
-                    console.error("Error fetching profile:", error);
-                }
-            },
+				try {
+					const token = localStorage.getItem("token");
+					const response = await fetch(process.env.BACKEND_URL + "/api/check-profile", {
+						method: "GET",
+						headers: {
+							"Content-Type": "application/json",
+							Authorization: `Bearer ${token}`
+						}
+					});
+					if (response.ok) {
+						const data = await response.json();
+						return data;
+					} else {
+						console.log("Failed to fetch profile");
+					}
+				} catch (error) {
+					console.error("Error fetching profile:", error);
+				}
+			},
 
-            updateProfile: async (profileData) => {
-                try {
-                    const token = localStorage.getItem("token");
-                    const response = await fetch(process.env.BACKEND_URL + "/api/edit-profile", {
-                        method: "PUT",
-                        headers: {
-                            "Content-Type": "application/json",
-                            Authorization: `Bearer ${token}`
-                        },
-                        body: JSON.stringify(profileData)
-                    });
-                    return response.ok;
-                } catch (error) {
-                    console.error("Error updating profile:", error);
-                    return false;
-                }
-            }
+			updateProfile: async (profileData) => {
+				try {
+					const token = localStorage.getItem("token");
+					const response = await fetch(process.env.BACKEND_URL + "/api/edit-profile", {
+						method: "PUT",
+						headers: {
+							"Content-Type": "application/json",
+							Authorization: `Bearer ${token}`
+						},
+						body: JSON.stringify(profileData)
+					});
+					return response.ok;
+				} catch (error) {
+					console.error("Error updating profile:", error);
+					return false;
+				}
+			},
+
+			// Get all potential spotters (excluding already liked/matched users)
+			getPotentialSpotters: async () => {
+				try {
+					const token = localStorage.getItem("token");
+					const response = await fetch(process.env.BACKEND_URL + "/api/potential-spotters", {
+						headers: {
+							"Authorization": `Bearer ${token}`
+						}
+					});
+					const data = await response.json();
+					setStore({ users: data });
+				} catch (error) {
+					console.error("Error fetching spotters:", error);
+				}
+			},
+
+			// Add user to favorites (create like)
+			addToFavorites: async (userId) => {
+				try {
+					const token = localStorage.getItem("token");
+					const response = await fetch(`${process.env.BACKEND_URL}/api/like/${userId}`, {
+						method: "POST",
+						headers: {
+							"Authorization": `Bearer ${token}`
+						}
+					});
+
+					const data = await response.json();
+					if (data.match_created) {
+						// If it's a match, refresh matches list
+						getActions().getMatches();
+						return { success: true, isMatch: true };
+					}
+					return { success: true, isMatch: false };
+				} catch (error) {
+					console.error("Error adding to favorites:", error);
+					return { success: false };
+				}
+			},
+
+			getLikedUsers: async () => {
+				try {
+					const token = localStorage.getItem("token");
+					const response = await fetch(`${process.env.BACKEND_URL}/api/liked-users`, {
+						headers: {
+							"Authorization": `Bearer ${token}`
+						}
+					});
+					const data = await response.json();
+					setStore({ likedUsers: data });
+				} catch (error) {
+					console.error("Error fetching liked users:", error);
+				}
+			},
+
+			// Get matches (mutual likes)
+			getMatches: async () => {
+				try {
+					const token = localStorage.getItem("token");
+					const response = await fetch(process.env.BACKEND_URL + "/api/matches", {
+						headers: {
+							"Authorization": `Bearer ${token}`
+						}
+					});
+					const data = await response.json();
+					setStore({ matches: data });
+				} catch (error) {
+					console.error("Error fetching matches:", error);
+				}
+			}
 
 
 		}
