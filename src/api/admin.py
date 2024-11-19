@@ -1,7 +1,7 @@
   
 import os
 from flask_admin import Admin
-from api.models import db, User, Match, GymPreference, ExerciseInterests, Like, WorkoutSchedule
+from api.models import db, User, Match, GymPreference, ExerciseInterests, Like, WorkoutSchedule, Subscriber
 from flask_admin.form import Select2Widget
 from flask_admin.contrib.sqla import ModelView
 
@@ -65,6 +65,7 @@ def setup_admin(app):
     admin.add_view(ExerciseInterestsView(ExerciseInterests, db.session))
     admin.add_view(WorkoutScheduleView(WorkoutSchedule, db.session))
     admin.add_view(LikeView(Like, db.session))
+    admin.add_view(ModelView(Subscriber, db.session))
 
     # You can duplicate that line to add mew models
     # admin.add_view(ModelView(YourModelName, db.session))

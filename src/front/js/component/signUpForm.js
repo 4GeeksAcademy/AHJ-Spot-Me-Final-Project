@@ -11,8 +11,7 @@ const SignupForm = () => {
         password: '',
         confirmPassword: '',
         fullName: '',
-        state: '',
-        city: '',
+        age: '',
     });
     const [error, setError] = useState('');
 
@@ -30,12 +29,19 @@ const SignupForm = () => {
             return;
         }
 
+        // Age restriction validation
+        const age = parseInt(formData.age, 10);
+        if (isNaN(age) || age < 18) {
+            setError('Sorry! You must be 18 or older to use this service.');
+            return;
+        }
+
         setError('');
 
         const result = await actions.signup(formData);
         
         if (result.success) {
-            navigate('/login'); // or wherever you want to redirect after signup
+            navigate('/login'); // Redirect after signup
         } else {
             setError(result.message);
         }
@@ -93,22 +99,11 @@ const SignupForm = () => {
                     />
                 </div>
                 <div className="mb-3">
-                    <label>State:</label>
+                    <label>Age:</label>
                     <input
                         type="text"
-                        name="state"
-                        value={formData.state}
-                        onChange={handleChange}
-                        className="form-control"
-                        required
-                    />
-                </div>
-                <div className="mb-3">
-                    <label>City:</label>
-                    <input
-                        type="text"
-                        name="city"
-                        value={formData.city}
+                        name="age"
+                        value={formData.age}
                         onChange={handleChange}
                         className="form-control"
                         required

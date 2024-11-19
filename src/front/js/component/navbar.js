@@ -5,9 +5,22 @@ import logo from "../../img/logo.png";
 
 const Navbar = () => {
     const [isMenuOpen, setIsMenuOpen] = useState(false);
+    const [isLoggedIn, setIsLoggedIn] = useState(false);
+
+    useEffect(() => {
+        // Check if the user is logged in by looking for the token in localStorage
+        const token = localStorage.getItem("access_token");
+        setIsLoggedIn(!!token); // Update the `isLoggedIn` state based on token presence
+    }, []);
 
     const toggleMenu = () => {
         setIsMenuOpen((prev) => !prev);
+    };
+
+    const handleLogout = () => {
+        localStorage.removeItem("access_token"); // Clear the access token
+        setIsLoggedIn(false); // Update login state
+        window.location.href = "/login"; // Redirect to login page
     };
 
     useEffect(() => {
@@ -52,21 +65,37 @@ const Navbar = () => {
                             <li className="nav-item">
                                 <Link to="/contact" className="nav-link">Contact Us</Link>
                             </li>
-                            <li className="nav-item">
-                                <Link to="/user-profile" className="nav-link">User Profile</Link>
-                            </li>
-                            <li className="nav-item">
-                                <Link to="/spotter-profiles" className="nav-link">Find Spotters</Link>
-                            </li>
-                            <li className="nav-item">
-                                <Link to="/matches" className="nav-link">Matches</Link>
-                            </li>
-                            <li className="nav-item">
-                                <Link to="/favorites" className="nav-link">Favorites</Link>
-                            </li>
-                            <li className="nav-item">
-                                <button className="btn btn-link nav-link">Logout</button>
-                            </li>
+
+                            {isLoggedIn ? (
+                                <>
+                                    <li className="nav-item">
+                                        <Link to="/user-profile" className="nav-link">User Profile</Link>
+                                    </li>
+                                    <li className="nav-item">
+                                        <Link to="/spotter-profiles" className="nav-link">Find Spotters</Link>
+                                    </li>
+                                    <li className="nav-item">
+                                        <Link to="/matches" className="nav-link">Matches</Link>
+                                    </li>
+                                    <li className="nav-item">
+                                        <Link to="/favorites" className="nav-link">Favorites</Link>
+                                    </li>
+                                    <li className="nav-item">
+                                        <button className="btn-link nav-link" onClick={handleLogout}>
+                                            Logout
+                                        </button>
+                                    </li>
+                                </>
+                            ) : (
+                                <>
+                                    <li className="nav-item">
+                                        <Link to="/signup" className="nav-link">Sign Up</Link>
+                                    </li>
+                                    <li className="nav-item">
+                                        <Link to="/login" className="nav-link">Login</Link>
+                                    </li>
+                                </>
+                            )}
                         </ul>
                     </div>
                 </div>
