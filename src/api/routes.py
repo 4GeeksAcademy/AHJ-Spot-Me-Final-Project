@@ -238,7 +238,6 @@ def check_profile_completeness():
 
 
 
-# We got errors in this endpoint
 @api.route('/edit-profile', methods=['PUT'])
 @jwt_required()
 def edit_profile():
@@ -267,11 +266,17 @@ def edit_profile():
 
         # Validate gender (assuming you have specific acceptable values)
         if 'gender' in request_data:
-
             try:
                 current_user.gender = Gender(request_data['gender'])
             except ValueError:
                 return jsonify({"error": "Gender must be 'male', 'female', or 'other'."}), 400
+            
+
+        if 'city' in request_data:
+            current_user.city = request_data['city']
+
+        if 'state' in request_data:
+            current_user.state = request_data['state']
 
         # Validate name
         if 'name' in request_data:
@@ -289,6 +294,15 @@ def edit_profile():
         db.session.rollback()
         return jsonify({'error': str(e)}), 500
 
+@api.route('/profile', methods=['GET'])
+@jwt_required()
+def get_user_profile():
+    current_user = User.query.get(get_jwt_identity())
+    if not current_user:
+        return jsonify({"error": "User not found"}), 404
+    return jsonify({"user": current_user.serialize()}), 200
+
+
 
 @api.route('/users', methods=['GET'])
 def get_all_users():
@@ -301,22 +315,23 @@ def get_all_users():
     return jsonify(response_body), 200
 
 
-@api.route("/users/<int:user_id>", methods= ["GET"])
-def get_user_info(user_id):
-    user= User.query.get(user_id)
-    if user is None:
-        return jsonify({
-            "success": False,
-            "message": "user not found",
-            "error": "USER_NOT_FOUND",
+# @api.route("/users/<int:user_id>", methods= ["GET"])
+# def get_user_info(user_id):
+#     user= User.query.get(user_id)
+#     if user is None:
+#         return jsonify({
+#             "success": False,
+#             "message": "user not found",
+#             "error": "USER_NOT_FOUND",
 
-        }), 404
+#         }), 404
     
-    return jsonify({
-        "success": True,
-        "message": "user retrieve successfuly",
-        "data": user.serialize()
-    }), 200
+#     return jsonify({
+#         "success": True,
+#         "message": "user retrieve successfuly",
+#         "data": user.serialize()
+#     }), 200
+
 
 @api.route('/liked-users', methods=['GET'])
 @jwt_required()
