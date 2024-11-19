@@ -1,7 +1,7 @@
-// src/pages/home.js
 import React from "react";
 import { Link } from "react-router-dom";
 import "../../styles/home.css";
+import SubscribeSection from "../component/SubscribeSection"; // Import the SubscribeSection component
 import spottingVideo from "../../../../public/spotting-gym.mp4";
 
 const Home = () => {
@@ -26,39 +26,30 @@ const Home = () => {
 
             {/* Features Section */}
             <section className="features-section">
-    <div className="feature-card">
-        <i className="fas fa-check-circle feature-icon"></i>
-        <h3>Spotters by Exercise Interest</h3>
-    </div>
-    <div className="feature-card">
-        <i className="fas fa-check-circle feature-icon"></i>
-        <h3>Spotters by Geographic Distance</h3>
-    </div>
-    <div className="feature-card">
-        <i className="fas fa-check-circle feature-icon"></i>
-        <h3>Spotters by Gym Time</h3>
-    </div>
-</section>
+                <div className="feature-card">
+                    <i className="fas fa-check-circle feature-icon"></i>
+                    <h3>Spotters by Exercise Interest</h3>
+                </div>
+                <div className="feature-card">
+                    <i className="fas fa-check-circle feature-icon"></i>
+                    <h3>Spotters by Geographic Distance</h3>
+                </div>
+                <div className="feature-card">
+                    <i className="fas fa-check-circle feature-icon"></i>
+                    <h3>Spotters by Gym Time</h3>
+                </div>
+            </section>
 
             {/* CTA Section */}
             <section className="cta-section">
-    <div className="cta-overlay">
-        <h2>Don't limit your exercises cause you don’t know anyone at the gym</h2>
-        <p className="quote">"A spotter is more than just a safety net; it's a partner pushing you to reach your full potential."</p>
-    </div>
-</section>
+                <div className="cta-overlay">
+                    <h2>Don't limit your exercises cause you don’t know anyone at the gym</h2>
+                    <p className="quote">"A spotter is more than just a safety net; it's a partner pushing you to reach your full potential."</p>
+                </div>
+            </section>
 
-            {/* Contact Form Section */}
-            <section className="contact-section">
-    <h3>Get In Touch</h3>
-    <form className="contact-form">
-        <div className="contact-form-row">
-            <input type="email" placeholder="Email address" required />
-            <input type="text" placeholder="Full name" required />
-        </div>
-        <button className="subscribe-button">Subscribe</button>
-    </form>
-</section>
+            {/* Subscribe Section */}
+            <SubscribeSection />
         </div>
     );
 };

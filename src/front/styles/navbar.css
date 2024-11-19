@@ -2,6 +2,10 @@
     background-color: #1f1f1f; /* Dark background */
     padding: 10px 20px;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+    display: flex;
+    align-items: center; /* Center content vertically */
+    justify-content: space-between; /* Separate logo and nav items */
+    position: relative;
 }
 
 .navbar-brand {
@@ -10,10 +14,28 @@
     font-size: 1.5rem;
     text-decoration: none;
     transition: color 0.3s ease;
+    margin-right: auto; /* Align logo to the far left */
 }
 
 .navbar-brand:hover {
     color: #ff914d; /* Orange hover effect */
+}
+
+.navbar-logo {
+    height: 60px;
+    width: auto;
+    max-width: 100px;
+}
+
+.navbar-nav {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    margin-left: auto; /* Align nav items to the far right */
+}
+
+.navbar-nav .nav-item {
+    margin-right: 15px;
 }
 
 .navbar-nav .nav-link {
@@ -28,32 +50,140 @@
     color: #00c2c7; /* Teal color on hover */
 }
 
-.navbar-nav .nav-link.active {
+.navbar-nav .btn-link.nav-link {
+    padding: 8px 12px; /* Match padding with other nav links */
+    border: none;
+    background: none;
+    font-size: 1rem;
+    color: #ff914d; /* Orange color for logout button */
+    transition: color 0.3s ease;
+    cursor: pointer;
+    margin-top: 2px; /* Slightly adjust vertical alignment */
+}
+
+.navbar-nav .btn-link.nav-link:hover {
+    color: #e67b2f; /* Darker orange on hover */
+}
+
+.navbar-toggler {
+    border: none;
+    background: none;
+    padding: 2; /* Reset padding */
+    display: flex;
+    align-items: center; /* Center vertically */
+    justify-content: center; /* Center horizontally */
+    height: 60px; /* Match the height of the navbar */
+    width: 60px; /* Adjust for consistent dimensions */
+    position: relative;
+}
+
+
+.navbar-toggler-icon {
+    position: relative;
+    width: 24px; /* Width of the lines */
+    height: 3px; /* Height of the lines */
+    background-color: white; /* Line color */
+    border-radius: 2px;
+    transition: transform 0.3s, background-color 0.3s;
+}
+
+.navbar-toggler-icon::before,
+.navbar-toggler-icon::after {
+    content: "";
+    position: absolute;
+    width: 24px; /* Same width as the main line */
+    height: 3px; /* Same height as the main line */
+    background-color: white;
+    border-radius: 2px;
+    transition: transform 0.3s, background-color 0.3s;
+}
+
+.navbar-toggler-icon::before {
+    top: -8px; /* Moves the line up */
+    left: 0;
+}
+
+.navbar-toggler-icon::after {
+    top: 8px; /* Moves the line down */
+    left: 0;
+}
+
+.navbar-toggler.active .navbar-toggler-icon {
+    background-color: transparent;
+}
+
+.navbar-toggler.active .navbar-toggler-icon::before {
+    transform: rotate(45deg);
+    top: 0;
+    background-color: #ff914d; /* Orange color when active */
+}
+
+.navbar-toggler.active .navbar-toggler-icon::after {
+    transform: rotate(-45deg);
+    top: 0;
+    background-color: #ff914d; /* Orange color when active */
+}
+
+/* Dropdown Menu Styling */
+.collapse {
+    display: none;
+}
+
+.collapse.show {
+    display: flex;
+    flex-direction: column;
+    background-color: #1f1f1f; /* Match navbar background */
+    padding: 10px 20px;
+    width: 100%;
+    position: absolute;
+    top: 100%; /* Position directly below the navbar */
+    left: 0;
+    z-index: 999; /* Place it below the navbar */
+    border-top: 1px solid #ff914d;
+}
+
+.navbar-nav {
+    width: 100%;
+}
+
+.nav-item {
+    margin-bottom: 10px;
+}
+
+.nav-link {
+    color: #f0f0f0; /* Light text color */
+    font-size: 1rem;
+    padding: 10px 0;
+    text-decoration: none;
+    transition: color 0.3s ease;
+    text-align: left;
+}
+
+.nav-link:hover {
+    color: #00c2c7; /* Teal color on hover */
+}
+
+.nav-link.active {
     color: #ff914d; /* Orange color for active link */
     font-weight: bold;
 }
 
-.navbar-toggler {
-    background-color: #333333; /* Dark background for toggler */
+/* Sign Out Button Styling */
+.navbar-nav .btn-link.nav-link {
+    padding: 8px 12px; /* Match padding with other nav links */
     border: none;
+    background: none;
+    font-size: 1rem;
+    color: #ff914d; /* Orange color for logout button */
+    transition: color 0.3s ease, background-color 0.3s ease;
+    cursor: pointer;
+    text-decoration: none; /* Remove underline */
+    outline: none; /* Remove focus outline */
 }
 
-.navbar-toggler-icon {
-    color: #f0f0f0; /* Light color for the toggler icon */
-}
-
-.btn-outline-primary {
-    color: #f0f0f0;
-    border-color: #ff914d; /* Orange outline for sign-out button */
-}
-
-.btn-outline-primary:hover {
-    color: #ffffff;
+.navbar-nav .btn-link.nav-link:hover {
+    color: #ffffff; /* White text on hover */
     background-color: #ff914d; /* Orange background on hover */
-    border-color: #ff914d;
+    border-radius: 4px; /* Optional: rounded corners for hover effect */
 }
-.navbar-logo {
-    height: 40px; /* Adjust this height as needed to fit your navbar */
-    width: auto;
-    max-width: 100px;
-}
+
