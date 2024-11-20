@@ -13,6 +13,17 @@ const Profile2 = () => {
         actions.getMatches();
     }, []);
 
+    const handleRemoveMatch = async (userId) => {
+        if (window.confirm("Are you sure you want to remove this match?")) {
+            const success = await actions.removeFavorite(userId);
+            if (success) {
+                console.log("Successfully removed match")
+                actions.getMatches()
+            } else {
+                console.error("Failed to remove match")
+            }
+        }
+    }
 
     const getAvatarUrl = (gender) => {
         switch (gender) {
@@ -37,6 +48,12 @@ const Profile2 = () => {
                     <div className="card-grid">
                         {store.matches.map(match => (
                             <div className="card" key={match.match_id}>
+                                <div
+                                    className="remove-match"
+                                    onClick={() => handleRemoveMatch(match.matched_user.id)}
+                                >
+                                    <i className="fa-solid fa-x"></i>
+                                </div>
                                 <img
                                     src={match.matched_user.profile_image || getAvatarUrl(match.matched_user.gender)}
                                     alt={`${match.matched_user.name}'s avatar`}

@@ -23,6 +23,19 @@ const Favorites = () => {
         }
     };
 
+    const handleRemoveFavorite = async(userId) => {
+    
+        if (window.confirm("Are you sure you want to remove this person from your favorites?")) {
+            const success= await actions.removeFavorite(userId);
+            if (success) {
+                console.log("successfully removed favorite");
+                actions.getLikedUsers();
+            } else {
+                console.error("failed to remove favorite")
+            }
+        }
+    }
+
     return (
         <div className="favorites">
             <h1>Your Favorites</h1>
@@ -30,6 +43,12 @@ const Favorites = () => {
                 <div className="favorites-list">
                     {store.likedUsers.map((user) => (
                         <div key={user.id} className="favorite-card">
+                            <div 
+                                className="remove-favorite"
+                                onClick={()=> handleRemoveFavorite(user.id)}
+                            >
+                                <i className="fa-solid fa-x"></i>
+                            </div>
                             <img
                                 src={user.profileImage || getAvatarUrl(user.gender)}
                                 alt={`${user.name}'s avatar`}
@@ -37,10 +56,10 @@ const Favorites = () => {
                             />
                             <div className="card-body">
                                 <h3>{user.name}</h3>
-                                <p>Gender: {user.gender}</p>
-                                <p>City: {user.city}</p>
-                                <p>State: {user.state}</p>
-                                {user.bio && <p>Bio: {user.bio}</p>}
+                                <p><b>Gender: </b>{user.gender}</p>
+                                <p><b>City: </b>{user.city}</p>
+                                <p><b>State: </b>{user.state}</p>
+                                {user.bio && <p><b>Bio: </b>{user.bio}</p>}
                                 <div className="match-status">
                                     {user.has_liked_back ? (
                                         <span className="match-badge">It's a Match! 🎉</span>

@@ -370,6 +370,38 @@ def like_user(liked_id):
         'match_created': bool(mutual_like)
     })
 
+@api.route('/unlike/<int:user_id>', methods=['DELETE'])
+@jwt_required()
+def unlike_user(user_id):
+    try:
+        current_user = User.query.get(get_jwt_identity())
+
+        like = Like.query.filter_by(
+            liker_id=current_user.id,
+            liked_id=user_id
+        ).first()
+
+        if not like:
+            return jsonify({"error": "like not found"}), 404
+
+        match = Match.query.filter(
+            ((Match.user1_id == current_user.id) & (Match.user2_id == user_id)) |
+            ((Match.user1_id == user_id) & (Match.user2_id == current_user.id))
+        ).first()
+
+        if match:
+            db.session.delete(match)
+        
+        db.session.delete(like)
+        db.session.commit()
+
+        return jsonify({"message": "Successfully removed from favorites"}), 200
+
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({"error": str(e)}), 500
+
+
 @api.route('/matches', methods=['GET'])
 @jwt_required()
 def get_matches():
