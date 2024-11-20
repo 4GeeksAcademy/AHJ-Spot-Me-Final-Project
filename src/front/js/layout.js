@@ -1,4 +1,3 @@
-// src/layout.js
 import React from "react";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 import ScrollToTop from "./component/scrollToTop";
@@ -18,11 +17,29 @@ import { ResetPassword } from "./component/resetpasswordform.js";
 import Favorites from "./pages/Favorites.js";
 import Profile2 from "./pages/Profile2";
 
-import { Profile } from "./pages/profile";
 import UserProfile from "./pages/UserProfile";
 import SpotterProfiles from "./pages/SpotterProfiles";
-import ContactUs from "./pages/ContactUs"; 
+import ContactUs from "./pages/ContactUs";
 import NotFound from "./pages/NotFound";
+
+import useTokenExpiration from "./component/useTokenExpiration";
+import { Modal } from "./component/Modal";
+
+const TokenExpirationHandler = () => {
+    const { showModal, setShowModal } = useTokenExpiration();
+
+    return (
+        <>
+            {showModal && (
+                <Modal
+                    title="Session Expiring Soon"
+                    message="Your session will expire in one minute. Please save your work or log in again."
+                    onClose={() => setShowModal(false)}
+                />
+            )}
+        </>
+    );
+};
 
 const Layout = () => {
     const basename = process.env.BASENAME || "";
@@ -33,6 +50,7 @@ const Layout = () => {
         <div className="layout-wrapper">
             <BrowserRouter basename={basename}>
                 <ScrollToTop>
+                    <TokenExpirationHandler />
                     <Navbar />
                     <div className="content-wrapper">
                         <Routes>
@@ -40,10 +58,9 @@ const Layout = () => {
                             <Route element={<Login />} path="/login" />
                             <Route element={<Signup />} path="/signup" />
                             <Route element={<ForgotPassword />} path="/forgot-password" />
-                            <Route element={<Profile />} path="/profile" />
                             <Route element={<ResetPassword />} path="/reset-password" />
                             <Route element={<Favorites />} path="/favorites" />
-                            <Route element={<Profile2 />} path="/matches" /> {/* Added route for /matches */}
+                            <Route element={<Profile2 />} path="/matches" />
                             <Route element={<Spotters />} path="/spotters" />
                             <Route element={<Single />} path="/single/:theid" />
                             <Route element={<UserProfile />} path="/user-profile" />

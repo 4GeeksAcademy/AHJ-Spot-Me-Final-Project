@@ -245,5 +245,18 @@ class User(db.Model):
         
         return data
        
+class Subscriber(db.Model):
+    __tablename__ = 'subscribers'
+    id = db.Column(db.Integer, primary_key=True)
+    email = db.Column(db.String(120), unique=True, nullable=False)
+    name = db.Column(db.String(120), nullable=True)
+    subscribed_at = db.Column(db.DateTime, default=datetime.utcnow)
 
+    def serialize(self):
+        return {
+            "id": self.id,
+            "email": self.email,
+            "name": self.name,
+            "subscribed_at": self.subscribed_at.isoformat()
+        }
 

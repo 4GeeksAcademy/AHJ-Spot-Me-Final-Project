@@ -3,9 +3,10 @@ This module takes care of starting the API Server, Loading the DB and Adding the
 """
 from flask_jwt_extended import create_access_token, jwt_required, get_jwt_identity
 import jwt
+import re
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask import request, jsonify, Blueprint
-from api.models import db, User, ExerciseInterests, WorkoutSchedule, Like, Match, DayOfWeek, TimeSlot, Gender, User, db, Match
+from api.models import db, User, ExerciseInterests, WorkoutSchedule, Like, Match, DayOfWeek, TimeSlot, Gender, User, db, Match, Subscriber
 from api.send_email import send_email
 from flask_cors import CORS
 from flask_jwt_extended import jwt_required, get_jwt_identity, create_access_token, get_jwt
@@ -24,6 +25,9 @@ api = Blueprint('api', __name__)
 # Allow CORS requests to this API
 CORS(api)
 
+def is_valid_email(email):
+    email_regex = r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
+    return re.match(email_regex, email) is not None
 
 @api.route("/auth-google", methods=["POST"])
 def google_login():
@@ -238,7 +242,6 @@ def check_profile_completeness():
 
 
 
-# We got errors in this endpoint
 @api.route('/edit-profile', methods=['PUT'])
 @jwt_required()
 def edit_profile():
@@ -267,11 +270,17 @@ def edit_profile():
 
         # Validate gender (assuming you have specific acceptable values)
         if 'gender' in request_data:
-
             try:
                 current_user.gender = Gender(request_data['gender'])
             except ValueError:
                 return jsonify({"error": "Gender must be 'male', 'female', or 'other'."}), 400
+            
+
+        if 'city' in request_data:
+            current_user.city = request_data['city']
+
+        if 'state' in request_data:
+            current_user.state = request_data['state']
 
         # Validate name
         if 'name' in request_data:
@@ -289,6 +298,15 @@ def edit_profile():
         db.session.rollback()
         return jsonify({'error': str(e)}), 500
 
+@api.route('/profile', methods=['GET'])
+@jwt_required()
+def get_user_profile():
+    current_user = User.query.get(get_jwt_identity())
+    if not current_user:
+        return jsonify({"error": "User not found"}), 404
+    return jsonify({"user": current_user.serialize()}), 200
+
+
 
 @api.route('/users', methods=['GET'])
 def get_all_users():
@@ -301,22 +319,23 @@ def get_all_users():
     return jsonify(response_body), 200
 
 
-@api.route("/users/<int:user_id>", methods= ["GET"])
-def get_user_info(user_id):
-    user= User.query.get(user_id)
-    if user is None:
-        return jsonify({
-            "success": False,
-            "message": "user not found",
-            "error": "USER_NOT_FOUND",
+# @api.route("/users/<int:user_id>", methods= ["GET"])
+# def get_user_info(user_id):
+#     user= User.query.get(user_id)
+#     if user is None:
+#         return jsonify({
+#             "success": False,
+#             "message": "user not found",
+#             "error": "USER_NOT_FOUND",
 
-        }), 404
+#         }), 404
     
-    return jsonify({
-        "success": True,
-        "message": "user retrieve successfuly",
-        "data": user.serialize()
-    }), 200
+#     return jsonify({
+#         "success": True,
+#         "message": "user retrieve successfuly",
+#         "data": user.serialize()
+#     }), 200
+
 
 @api.route('/liked-users', methods=['GET'])
 @jwt_required()
@@ -442,6 +461,41 @@ def get_potential_spotters():
         return jsonify([user.serialize() for user in potential_matches]), 200
     except Exception as e:
         return jsonify({"error": str(e)}), 500
+    
+
+    
+@api.route('/subscriber', methods=['POST'])
+def subscribe():
+    try:
+        data = request.json
+        email = data.get('email')
+        name = data.get('name')
+
+        # Check if email and name are provided
+        if not email or not name:
+            return jsonify({"error": "Email and Name are required"}), 400
+
+        # Validate email format
+        if not is_valid_email(email):
+            return jsonify({"error": "Invalid email format"}), 400
+
+        # Check if email already exists
+        existing_subscriber = Subscriber.query.filter_by(email=email).first()
+        if existing_subscriber:
+            return jsonify({"message": "Email already subscribed"}), 200
+
+        # Add new subscriber
+        new_subscriber = Subscriber(email=email, name=name)
+        db.session.add(new_subscriber)
+        db.session.commit()
+
+        return jsonify({"message": "Subscription successful!"}), 201
+
+    except Exception as e:
+        app.logger.error(f"Error in /api/subscribe: {e}")
+        return jsonify({"error": "Internal server error"}), 500
+
+
 
 # ------------ guide/ references for adding gym preference days & times later -------------------
 # ------------ guide/ references for adding gym preference days & times later -------------------

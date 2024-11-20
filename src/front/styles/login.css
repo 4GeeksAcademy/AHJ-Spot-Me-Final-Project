@@ -5,6 +5,7 @@
     align-items: center;
     height: calc(100vh - 80px); /* Full screen minus navbar height */
     padding-top: 20px;
+    background-color: #f8f9fa; /* Light gray background for contrast */
 }
 
 /* Style the login card */
@@ -14,6 +15,7 @@
     background-color: #ffffff;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
     border-radius: 10px;
+    text-align: center; /* Center align content */
 }
 
 /* Title styling */
@@ -24,10 +26,49 @@
     color: #1f1f1f; /* Match your color scheme */
 }
 
+/* Input field styling */
+.login-card .form-control {
+    font-size: 14px;
+    padding: 10px;
+    margin-bottom: 15px;
+    border: 1px solid #ced4da;
+    border-radius: 5px;
+    transition: border-color 0.3s ease;
+}
+
+.login-card .form-control:focus {
+    border-color: #007bff; /* Match button color */
+    box-shadow: 0 0 5px rgba(0, 123, 255, 0.3); /* Add glow effect */
+}
+
 /* Style for buttons */
 .login-card .btn {
     padding: 10px;
     font-size: 16px;
+    font-weight: bold;
+    width: 100%;
+    border-radius: 5px;
+}
+
+/* Login button styling */
+.login-card .btn-primary {
+    background-color: #ff914d;
+    border: none;
+}
+
+.login-card .btn-primary:hover {
+    background-color: #0056b3;
+}
+
+/* Sign Out button styling */
+.login-card .btn-secondary {
+    margin-top: 15px;
+    background-color: #6c757d;
+    border: none;
+}
+
+.login-card .btn-secondary:hover {
+    background-color: #5a6268;
 }
 
 /* Style the Google sign-in button */
@@ -42,6 +83,12 @@
     padding: 10px;
     background-color: #f5f5f5;
     border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.google-signin-button:hover {
+    background-color: #e9ecef;
 }
 
 /* Forgot Password link styling */
@@ -58,9 +105,12 @@
     color: #0056b3;
 }
 
-/* Sign Out button styling */
-.login-card .btn-secondary {
-    margin-top: 15px;
+/* Error message styling */
+.error-message {
+    color: #dc3545; /* Bootstrap's danger color */
+    font-size: 14px;
+    text-align: center;
+    margin-top: 10px;
 }
 
 /* Media Query for Responsiveness */
