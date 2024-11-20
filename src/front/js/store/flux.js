@@ -231,6 +231,28 @@ const getState = ({ getStore, getActions, setStore }) => {
 				}
 			},
 
+			removeFavorite: async (userId)=> {
+				try {
+					const token=localStorage.getItem("token");
+					const response = await fetch(`${process.env.BACKEND_URL}/api/unlike/${userId}`, {
+						method: "DELETE", 
+						headers: {
+							"Authorization": `Bearer ${token}`
+						}
+					});
+
+					if (response.ok) {
+						getActions().getLikedUsers();
+						return true;
+					}
+					return false;
+				} catch (error) {
+					console.error("error removing favorite:", error);
+					return false
+				}
+			},
+			
+
 			getLikedUsers: async () => {
 				try {
 					const token = localStorage.getItem("token");
