@@ -217,7 +217,6 @@ class User(db.Model):
             "state": self.state if self.state else None,
             "city": self.city if self.city else None,
             "gender": self.gender.value if self.gender else None,
-        
             "bio": self.bio if self.bio else None,
             "profile_image":
             self.profile_image if self.profile_image else None, 
@@ -232,6 +231,13 @@ class User(db.Model):
                         "name": interest.name.value,
                         "description": interest.description
                     } for interest in self.exercise_interests
+                ],
+                "workout_schedules": [
+                    {
+                        "id": schedule.id,
+                        "day_of_week": schedule.day_of_week.name,
+                        "time_slot": schedule.time_slot.name
+                    } for schedule in self.workout_schedules
                 ],
                 "gym_preferences": [
                     {

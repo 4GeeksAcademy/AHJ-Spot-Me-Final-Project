@@ -36,7 +36,7 @@ const SpotterProfiles = () => {
     useEffect(() => {
         const fetchData = async () => {
             try {
-                await actions.getAllUsers(); 
+                await actions.getAllUsers();
                 setIsLoading(false);
             } catch (error) {
                 console.error("Error fetching users:", error);

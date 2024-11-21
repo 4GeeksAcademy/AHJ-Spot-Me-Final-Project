@@ -6,7 +6,7 @@ import jwt
 import re
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask import request, jsonify, Blueprint
-from api.models import db, User, ExerciseInterests, WorkoutSchedule, Like, Match, DayOfWeek, TimeSlot, Gender, User, db, Match, Subscriber
+from api.models import db, User, ExerciseInterests, WorkoutSchedule, Like, Match, DayOfWeek, TimeSlot, Gender, User, db, Match, Subscriber, ExerciseCategory
 from api.send_email import send_email
 from flask_cors import CORS
 from flask_jwt_extended import jwt_required, get_jwt_identity, create_access_token, get_jwt
@@ -291,8 +291,79 @@ def edit_profile():
         #     return jsonify({"msg": "Profile picture must be a valid URL string."}), 400
         # user.profile_picture = profile_picture
 
-        db.session.commit()
-        return jsonify({'success': True, 'user': current_user.serialize()}), 200
+        # if 'exercise_interests' in request_data:
+        #     # Clear existing interests
+        #     current_user.exercise_interests = []
+            
+        #     # Add new interests
+        #     interest_values = request_data['exercise_interests']
+        #     for interest_value in interest_values:
+        #         try:
+        #             # Find or create the exercise interest
+        #             interest = ExerciseInterests.query.filter_by(
+        #                 name=ExerciseCategory(interest_value)
+        #             ).first()
+        #             if interest:
+        #                 current_user.exercise_interests.append(interest)
+        #         except ValueError:
+        #             return jsonify({"error": f"Invalid exercise interest: {interest_value}"}), 400
+        if 'exercise_interests' in request_data:
+            # Clear existing interests
+            current_user.exercise_interests = []
+            
+            # Add new interests
+            interest_values = request_data['exercise_interests']
+            for interest_value in interest_values:
+                try:
+                    # Convert the string to enum value
+                    category_enum = ExerciseCategory[interest_value]
+                    # Find or create the exercise interest
+                    interest = ExerciseInterests.query.filter_by(
+                        name=category_enum
+                    ).first()
+                    if interest:
+                        current_user.exercise_interests.append(interest)
+                    else:
+                        # Create new interest if it doesn't exist
+                        new_interest = ExerciseInterests(
+                            name=category_enum,
+                            description=f"Interest in {category_enum.value}"
+                        )
+                        db.session.add(new_interest)
+                        current_user.exercise_interests.append(new_interest)
+                except KeyError:
+                    return jsonify({"error": f"Invalid exercise interest: {interest_value}"}), 400
+
+        # Handle workout schedules
+        if 'workout_schedules' in request_data:
+            # Clear existing schedules
+            WorkoutSchedule.query.filter_by(user_id=current_user.id).delete()
+            
+            # Add new schedules
+            schedules = request_data['workout_schedules']
+            for schedule in schedules:
+                try:
+                    new_schedule = WorkoutSchedule(
+                        user_id=current_user.id,
+                        day_of_week=DayOfWeek[schedule['day_of_week']],
+                        time_slot=TimeSlot[schedule['time_slot']]
+                    )
+                    db.session.add(new_schedule)
+                except (KeyError, ValueError):
+                    return jsonify({"error": "Invalid schedule format"}), 400
+
+        try:
+            db.session.commit()
+            return jsonify({
+                'success': True, 
+                'user': current_user.serialize(include_relations=True)
+            }), 200
+        except Exception as e:
+            db.session.rollback()
+            return jsonify({'error': str(e)}), 500
+
+        # db.session.commit()
+        # return jsonify({'success': True, 'user': current_user.serialize()}), 200
   
     except Exception as e:
         db.session.rollback()
@@ -304,8 +375,9 @@ def get_user_profile():
     current_user = User.query.get(get_jwt_identity())
     if not current_user:
         return jsonify({"error": "User not found"}), 404
-    return jsonify({"user": current_user.serialize()}), 200
-
+    return jsonify({
+        "user": current_user.serialize(include_relations=True)
+    }), 200
 
 
 @api.route('/users', methods=['GET'])
@@ -496,21 +568,24 @@ def subscribe():
         return jsonify({"error": "Internal server error"}), 500
 
 
+@api.route('/exercise-interests', methods=['GET'])
+def get_exercise_interests():
+    try:
+        interests = ExerciseInterests.query.all()
+        return jsonify([{
+            'id': interest.id,
+            'name': interest.name.value,
+            'description': interest.description
+        } for interest in interests]), 200
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
 
 # ------------ guide/ references for adding gym preference days & times later -------------------
 # ------------ guide/ references for adding gym preference days & times later -------------------
 # ------------ guide/ references for adding gym preference days & times later -------------------
 # ------------ guide/ references for adding gym preference days & times later -------------------
 # Add these routes to your existing routes.py
-
-# @api.route('/exercise-interests', methods=['GET'])
-# def get_exercise_interests():
-#     interests = ExerciseInterests.query.all()
-#     return jsonify([{
-#         'id': interest.id,
-#         'name': interest.name.value,
-#         'description': interest.description
-#     } for interest in interests])
 
 # @api.route('/user/exercise-interests', methods=['GET', 'PUT'])
 # @jwt_required()
