@@ -20,12 +20,12 @@ const LoginForm = () => {
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ token: response.credential }),
             });
-    
+
             if (res.ok) {
                 const data = await res.json();
                 const decodedToken = JSON.parse(atob(data.access_token.split('.')[1])); // Decode JWT payload
                 const tokenExpiration = decodedToken.exp * 1000; // Convert to milliseconds
-    
+
                 localStorage.setItem("authToken", data.access_token); // Save token
                 localStorage.setItem("tokenExpiration", tokenExpiration); // Save expiration time
                 navigate("/user-profile"); // Redirect to user profile
@@ -39,7 +39,7 @@ const LoginForm = () => {
             alert("An error occurred during Google Sign-In. Please try again.");
         }
     };
-    
+
 
     // Initialize Google Sign-In
     useEffect(() => {
@@ -52,7 +52,12 @@ const LoginForm = () => {
 
             google.accounts.id.renderButton(
                 document.getElementById("googleSignInButton"),
-                { theme: "outline", size: "large" }
+                {
+                    theme: "outline",
+                    size: "large",
+                    width: "100%",
+                    type: "standard"
+                }
             );
         }
     }, [isLoggedIn]);
@@ -107,14 +112,17 @@ const LoginForm = () => {
                             </div>
                             <button type="submit" className="btn btn-primary w-100 mb-3">Login</button>
                         </form>
-                        <p className="text-center m-0">-- OR --</p>
+                        {/* <p className="text-center m-0">-- OR --</p> */}
+                        <div className="divider">
+                            <span>or</span>
+                        </div>
                         <div id="googleSignInButton" className="google-signin-button mt-3"></div>
                         <Link to="/forgot-password" className="forgot-password-link">
                             Forgot Password?
                         </Link>
                     </>
                 ) : (
-                    <button onClick={signOut} className="btn btn-secondary w-100 mt-3">
+                    <button onClick={signOut} className="btn btn-secondary w-100 mt-4">
                         Sign Out
                     </button>
                 )}

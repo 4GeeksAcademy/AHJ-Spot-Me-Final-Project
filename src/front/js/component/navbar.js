@@ -8,25 +8,28 @@ const Navbar = () => {
     const [isMenuOpen, setIsMenuOpen] = useState(false);
     // const [isLoggedIn, setIsLoggedIn] = useState(false);
     const navigate = useNavigate();
+
     useEffect(() => {
         // Check if the user is logged in by looking for the token in localStorage
         // const token = localStorage.getItem("authToken"); // Updated token name for consistency
         const token = store.token;
         // setIsLoggedIn(!!token); // Update the `isLoggedIn` state based on token presence
     }, []);
+
     const toggleMenu = () => {
         setIsMenuOpen((prev) => !prev);
     };
-    // const handleLogout = () => {
-    //     actions.logout(); // Clear the auth token
-    //     setIsLoggedIn(false); // Update login state
-    //     window.location.href = "/login"; // Redirect to login page
-    // };
+
+    const closeMenu = () => {
+        setIsMenuOpen(false);
+    }
+
     const handleLogout = async () => {
         try {
             const success = await actions.logout();
             if (success) {
                 // setIsLoggedIn(false);
+                closeMenu();
                 navigate("/login");
             }
         } catch (error) {
@@ -52,7 +55,7 @@ const Navbar = () => {
             <div className="container">
                 <div className="d-flex justify-content-between w-100">
                     {/* Logo aligned to the left */}
-                    <Link to="/" className="navbar-brand">
+                    <Link to="/" className="navbar-brand" onClick={closeMenu}>
                         <img src={logo} alt="SpotMe Logo" className="navbar-logo" />
                     </Link>
                     {/* Hamburger menu */}
@@ -69,24 +72,24 @@ const Navbar = () => {
                     >
                         <ul className="navbar-nav ms-auto align-items-center">
                             <li className="nav-item">
-                                <Link to="/" className="nav-link">Home</Link>
+                                <Link to="/" className="nav-link" onClick={closeMenu}>Home</Link>
                             </li>
                             <li className="nav-item">
-                                <Link to="/contact" className="nav-link">Contact Us</Link>
+                                <Link to="/contact" className="nav-link" onClick={closeMenu}>Contact Us</Link>
                             </li>
                             {isLoggedIn ? (
                                 <>
                                     <li className="nav-item">
-                                        <Link to="/user-profile" className="nav-link">User Profile</Link>
+                                        <Link to="/user-profile" className="nav-link" onClick={closeMenu}>User Profile</Link>
                                     </li>
                                     <li className="nav-item">
-                                        <Link to="/spotter-profiles" className="nav-link">Find Spotters</Link>
+                                        <Link to="/spotter-profiles" className="nav-link" onClick={closeMenu}>Find Spotters</Link>
                                     </li>
                                     <li className="nav-item">
-                                        <Link to="/matches" className="nav-link">Matches</Link>
+                                        <Link to="/matches" className="nav-link" onClick={closeMenu}>Matches</Link>
                                     </li>
                                     <li className="nav-item">
-                                        <Link to="/favorites" className="nav-link">Favorites</Link>
+                                        <Link to="/favorites" className="nav-link" onClick={closeMenu}>Favorites</Link>
                                     </li>
                                     <li className="nav-item">
                                         <button className="btn-link nav-link" onClick={handleLogout}>
@@ -97,10 +100,10 @@ const Navbar = () => {
                             ) : (
                                 <>
                                     <li className="nav-item">
-                                        <Link to="/signup" className="nav-link">Sign Up</Link>
+                                        <Link to="/signup" className="nav-link" onClick={closeMenu}>Sign Up</Link>
                                     </li>
                                     <li className="nav-item">
-                                        <Link to="/login" className="nav-link">Login</Link>
+                                        <Link to="/login" className="nav-link" onClick={closeMenu}>Login</Link>
                                     </li>
                                 </>
                             )}

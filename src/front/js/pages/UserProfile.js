@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useContext } from "react";
 import { Context } from "../store/appContext.js";
 import "../../styles/userProfile.css";
+import userIcon from "../../img/user_icon.png"
 
 const UserProfile = () => {
     const { store, actions } = useContext(Context);
@@ -92,19 +93,30 @@ const UserProfile = () => {
         }
     };
 
-    const avatarUrl =
-        profile.gender === "male"
-            ? "https://avatar.iran.liara.run/public/boy"
-            : "https://avatar.iran.liara.run/public/girl";
+    // const avatarUrl =
+    //     profile.gender === "male"
+    //         ? "https://avatar.iran.liara.run/public/boy"
+    //         : "https://avatar.iran.liara.run/public/girl";
 
-            if (error) {
-                return (
-                    <div className="error-container">
-                        <h2>Error updating profile!</h2>
-                        <p>Please refresh the page and try again.</p>
-                    </div>
-                );
-            }
+    //         if (error) {
+    //             return (
+    //                 <div className="error-container">
+    //                     <h2>Error updating profile!</h2>
+    //                     <p>Please refresh the page and try again.</p>
+    //                 </div>
+    //             );
+    //         }
+    
+    const getAvatarUrl = (gender) => {
+        switch (gender?.toLowerCase()) {
+            case "male":
+                return "https://avatar.iran.liara.run/public/boy";
+            case "female":
+                return "https://avatar.iran.liara.run/public/girl";
+            default:
+                return userIcon;
+        }
+    };
             
 
     return (
@@ -117,7 +129,7 @@ const UserProfile = () => {
             {/* User Profile Card */}
             <div className="user-profile-container">
                 <div className="user-profile">
-                    <img src={profile.profile_image || avatarUrl} alt="User Avatar" className="user-avatar" />
+                    <img src={profile.profile_image || getAvatarUrl(profile.gender)} alt="User Avatar" className="user-avatar" />
                     <h2 className="profile-heading">Your Profile</h2>
                     {isEditing ? (
                         <div className="profile-form">
