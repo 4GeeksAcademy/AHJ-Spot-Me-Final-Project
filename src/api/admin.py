@@ -14,7 +14,7 @@ class UserView(ModelView):
         'gender': {'widget': Select2Widget()}
     }
     column_display_all_relations = True
-    inline_models = [(WorkoutSchedule, dict(form_columns=['day_of_week', 'time_slot', 'gym_preference']))]
+    inline_models = [(WorkoutSchedule, dict(form_columns=['day_of_week', 'time_slot']))]
 
 class MatchView(ModelView):
     column_list = ('id', 'user1', 'user2', 'created_at', 'status', 'last_interaction')
@@ -34,7 +34,7 @@ class ExerciseInterestsView(ModelView):
     }
 
 class WorkoutScheduleView(ModelView):
-    column_list = ('id', 'user', 'gym_preference', 'day_of_week', 'time_slot')
+    column_list = ('id', 'user', 'day_of_week', 'time_slot')
     column_filters = ['day_of_week', 'time_slot']
     form_widget_args = {
         'day_of_week': {'widget': Select2Widget()},

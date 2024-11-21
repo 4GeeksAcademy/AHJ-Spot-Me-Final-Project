@@ -151,8 +151,52 @@ const UserProfile = () => {
     //         console.error("Error updating profile:", error);
     //     }
     // };
+
+    // ---------------------
+    // const handleSave = async () => {
+    //     try {
+    //         const token = await store.token;
+    //         const response = await fetch(`${process.env.BACKEND_URL}/api/edit-profile`, {
+    //             method: "PUT",
+    //             headers: {
+    //                 Authorization: `Bearer ${token}`,
+    //                 "Content-Type": "application/json",
+    //             },
+    //             body: JSON.stringify({
+    //                 ...formData,
+    //                 workout_schedules: selectedDays.flatMap((day) =>
+    //                     selectedTimes.map((time) => ({ day_of_week: day, time_slot: time }))
+    //                 ),
+    //                 exercise_interests: selectedInterests,
+    //             }),
+    //         });
+
+    //         const data = await response.json();
+    //         if (response.ok && data.user) {
+    //             setProfile(data.user);
+    //             setIsEditing(false);
+    //             setError(null);
+    //         } else {
+    //             setError(data.error || "Failed to update profile");
+    //         }
+    //     } catch (error) {
+    //         setError("Error updating profile");
+    //         console.error("Error updating profile:", error);
+    //     }
+    // };
+
     const handleSave = async () => {
         try {
+            // Create the request body, converting age to integer
+            const requestBody = {
+                ...formData,
+                age: formData.age ? parseInt(formData.age, 10) : null,  // Convert to integer
+                workout_schedules: selectedDays.flatMap((day) =>
+                    selectedTimes.map((time) => ({ day_of_week: day, time_slot: time }))
+                ),
+                exercise_interests: selectedInterests,
+            };
+
             const token = await store.token;
             const response = await fetch(`${process.env.BACKEND_URL}/api/edit-profile`, {
                 method: "PUT",
@@ -160,13 +204,7 @@ const UserProfile = () => {
                     Authorization: `Bearer ${token}`,
                     "Content-Type": "application/json",
                 },
-                body: JSON.stringify({
-                    ...formData,
-                    workout_schedules: selectedDays.flatMap((day) =>
-                        selectedTimes.map((time) => ({ day_of_week: day, time_slot: time }))
-                    ),
-                    exercise_interests: selectedInterests,
-                }),
+                body: JSON.stringify(requestBody),
             });
 
             const data = await response.json();
@@ -230,6 +268,7 @@ const UserProfile = () => {
                                     min="18"
                                     max="120"
                                     required
+                                    step="1"
                                 />
                             </label>
                             <label>
@@ -242,8 +281,8 @@ const UserProfile = () => {
                                 />
                             </label>
                             <label>
-                                Gender:
-                                <select name="gender" value={formData.gender} onChange={handleChange}>
+                                Gender*:
+                                <select name="gender" value={formData.gender} aria-required="true" onChange={handleChange}>
                                     <option value="prefer_not_to_say">Please pick an option</option>
                                     <option value="male">Male</option>
                                     <option value="female">Female</option>

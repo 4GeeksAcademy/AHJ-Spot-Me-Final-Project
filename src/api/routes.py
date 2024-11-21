@@ -242,6 +242,134 @@ def check_profile_completeness():
 
 
 
+# @api.route('/edit-profile', methods=['PUT'])
+# @jwt_required()
+# def edit_profile():
+#     try:
+#         current_user = User.query.get(get_jwt_identity())
+#         if not current_user:
+#             return jsonify({'error': 'User not found'}), 404
+        
+#         request_data = request.get_json()
+#         if not request_data:
+#             return jsonify({'error': 'No data provided'}), 400
+        
+    
+   
+#         # Validate age
+#         # if 'age' in request_data:
+#         #     if not isinstance(request_data['age'], int) or request_data['age'] < 0 or request_data['age'] > 120:
+#         #         return jsonify({"error": "Age must be a positive integer between 0 and 120."}), 400
+#         #     current_user.age = request_data['age']
+        
+
+#         # Validate bio length
+#         if 'bio' in request_data:
+#             if len(request_data['bio']) > 250:
+#                 return jsonify({"error": "Bio must be less than 250 characters."}), 400
+#         current_user.bio = (request_data['bio'])
+
+#         # Validate gender (assuming you have specific acceptable values)
+#         if 'gender' in request_data:
+#             try:
+#                 current_user.gender = Gender(request_data['gender'])
+#             except ValueError:
+#                 return jsonify({"error": "Gender must be 'male', 'female', or 'other'."}), 400
+            
+
+#         if 'city' in request_data:
+#             current_user.city = request_data['city']
+
+#         if 'state' in request_data:
+#             current_user.state = request_data['state']
+
+#         # Validate name
+#         if 'name' in request_data:
+#             current_user.name = (request_data['name'])
+
+#         # Validate profile picture URL format if needed
+#         # if profile_picture and not isinstance(profile_picture, str):
+#         #     return jsonify({"msg": "Profile picture must be a valid URL string."}), 400
+#         # user.profile_picture = profile_picture
+
+#         # if 'exercise_interests' in request_data:
+#         #     # Clear existing interests
+#         #     current_user.exercise_interests = []
+            
+#         #     # Add new interests
+#         #     interest_values = request_data['exercise_interests']
+#         #     for interest_value in interest_values:
+#         #         try:
+#         #             # Find or create the exercise interest
+#         #             interest = ExerciseInterests.query.filter_by(
+#         #                 name=ExerciseCategory(interest_value)
+#         #             ).first()
+#         #             if interest:
+#         #                 current_user.exercise_interests.append(interest)
+#         #         except ValueError:
+#         #             return jsonify({"error": f"Invalid exercise interest: {interest_value}"}), 400
+#         if 'exercise_interests' in request_data:
+#             # Clear existing interests
+#             current_user.exercise_interests = []
+            
+#             # Add new interests
+#             interest_values = request_data['exercise_interests']
+#             for interest_value in interest_values:
+#                 try:
+#                     # Convert the string to enum value
+#                     category_enum = ExerciseCategory[interest_value]
+#                     # Find or create the exercise interest
+#                     interest = ExerciseInterests.query.filter_by(
+#                         name=category_enum
+#                     ).first()
+#                     if interest:
+#                         current_user.exercise_interests.append(interest)
+#                     else:
+#                         # Create new interest if it doesn't exist
+#                         new_interest = ExerciseInterests(
+#                             name=category_enum,
+#                             description=f"Interest in {category_enum.value}"
+#                         )
+#                         db.session.add(new_interest)
+#                         current_user.exercise_interests.append(new_interest)
+#                 except KeyError:
+#                     return jsonify({"error": f"Invalid exercise interest: {interest_value}"}), 400
+
+#         # Handle workout schedules
+#         if 'workout_schedules' in request_data:
+#             # Clear existing schedules
+#             WorkoutSchedule.query.filter_by(user_id=current_user.id).delete()
+            
+#             # Add new schedules
+#             schedules = request_data['workout_schedules']
+#             for schedule in schedules:
+#                 try:
+#                     new_schedule = WorkoutSchedule(
+#                         user_id=current_user.id,
+#                         day_of_week=DayOfWeek[schedule['day_of_week']],
+#                         time_slot=TimeSlot[schedule['time_slot']]
+#                     )
+#                     db.session.add(new_schedule)
+#                 except (KeyError, ValueError):
+#                     return jsonify({"error": "Invalid schedule format"}), 400
+
+#         try:
+#             db.session.commit()
+#             return jsonify({
+#                 'success': True, 
+#                 'user': current_user.serialize(include_relations=True)
+#             }), 200
+#         except Exception as e:
+#             db.session.rollback()
+#             return jsonify({'error': str(e)}), 500
+
+#         # db.session.commit()
+#         # return jsonify({'success': True, 'user': current_user.serialize()}), 200
+  
+#     except Exception as e:
+#         db.session.rollback()
+#         return jsonify({'error': str(e)}), 500
+
 @api.route('/edit-profile', methods=['PUT'])
 @jwt_required()
 def edit_profile():
@@ -254,27 +382,35 @@ def edit_profile():
         if not request_data:
             return jsonify({'error': 'No data provided'}), 400
         
-    
-   
-        # Validate age
+        # Handle age validation
         if 'age' in request_data:
-            if not isinstance(request_data['age'], int) or request_data['age'] < 0 or request_data['age'] > 120:
-                return jsonify({"error": "Age must be a positive integer between 0 and 120."}), 400
-            current_user.age = request_data['age']
+            age = request_data['age']
+            # Check if age is None or empty string
+            if age is None or (isinstance(age, str) and not age.strip()):
+                current_user.age = None
+            else:
+                try:
+                    # Convert to integer if string
+                    age_int = int(age) if isinstance(age, str) else age
+                    if not isinstance(age_int, int) or age_int < 18 or age_int > 120:
+                        return jsonify({"error": "Age must be a positive integer between 18 and 120"}), 400
+                    current_user.age = age_int
+                except (ValueError, TypeError):
+                    return jsonify({"error": "Invalid age format"}), 400
 
         # Validate bio length
         if 'bio' in request_data:
-            if len(request_data['bio']) > 250:
-                return jsonify({"error": "Bio must be less than 250 characters."}), 400
-        current_user.bio = (request_data['bio'])
+            bio = request_data.get('bio')
+            if bio and len(bio) > 250:
+                return jsonify({"error": "Bio must be less than 250 characters"}), 400
+            current_user.bio = bio
 
-        # Validate gender (assuming you have specific acceptable values)
+        # Handle other fields
         if 'gender' in request_data:
             try:
                 current_user.gender = Gender(request_data['gender'])
             except ValueError:
-                return jsonify({"error": "Gender must be 'male', 'female', or 'other'."}), 400
-            
+                return jsonify({"error": "Invalid gender value"}), 400
 
         if 'city' in request_data:
             current_user.city = request_data['city']
@@ -282,49 +418,20 @@ def edit_profile():
         if 'state' in request_data:
             current_user.state = request_data['state']
 
-        # Validate name
         if 'name' in request_data:
-            current_user.name = (request_data['name'])
+            current_user.name = request_data['name']
 
-        # Validate profile picture URL format if needed
-        # if profile_picture and not isinstance(profile_picture, str):
-        #     return jsonify({"msg": "Profile picture must be a valid URL string."}), 400
-        # user.profile_picture = profile_picture
-
-        # if 'exercise_interests' in request_data:
-        #     # Clear existing interests
-        #     current_user.exercise_interests = []
-            
-        #     # Add new interests
-        #     interest_values = request_data['exercise_interests']
-        #     for interest_value in interest_values:
-        #         try:
-        #             # Find or create the exercise interest
-        #             interest = ExerciseInterests.query.filter_by(
-        #                 name=ExerciseCategory(interest_value)
-        #             ).first()
-        #             if interest:
-        #                 current_user.exercise_interests.append(interest)
-        #         except ValueError:
-        #             return jsonify({"error": f"Invalid exercise interest: {interest_value}"}), 400
+        # Handle exercise interests
         if 'exercise_interests' in request_data:
-            # Clear existing interests
             current_user.exercise_interests = []
-            
-            # Add new interests
             interest_values = request_data['exercise_interests']
             for interest_value in interest_values:
                 try:
-                    # Convert the string to enum value
                     category_enum = ExerciseCategory[interest_value]
-                    # Find or create the exercise interest
-                    interest = ExerciseInterests.query.filter_by(
-                        name=category_enum
-                    ).first()
+                    interest = ExerciseInterests.query.filter_by(name=category_enum).first()
                     if interest:
                         current_user.exercise_interests.append(interest)
                     else:
-                        # Create new interest if it doesn't exist
                         new_interest = ExerciseInterests(
                             name=category_enum,
                             description=f"Interest in {category_enum.value}"
@@ -336,10 +443,7 @@ def edit_profile():
 
         # Handle workout schedules
         if 'workout_schedules' in request_data:
-            # Clear existing schedules
             WorkoutSchedule.query.filter_by(user_id=current_user.id).delete()
-            
-            # Add new schedules
             schedules = request_data['workout_schedules']
             for schedule in schedules:
                 try:
@@ -362,9 +466,6 @@ def edit_profile():
             db.session.rollback()
             return jsonify({'error': str(e)}), 500
 
-        # db.session.commit()
-        # return jsonify({'success': True, 'user': current_user.serialize()}), 200
-  
     except Exception as e:
         db.session.rollback()
         return jsonify({'error': str(e)}), 500
