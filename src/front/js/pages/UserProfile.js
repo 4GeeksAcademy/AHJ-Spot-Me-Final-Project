@@ -78,7 +78,12 @@ const UserProfile = () => {
                 setFormData(data.user);
                 setSelectedDays((data.user?.workout_schedules || []).map((item) => item.day_of_week));
                 setSelectedTimes((data.user?.workout_schedules || []).map((item) => item.time_slot));
-                setSelectedInterests((data.user?.exercise_interests || []).map((interest) => interest.name));
+                // setSelectedInterests((data.user?.exercise_interests || []).map((interest) => interest.name));
+                setSelectedInterests((data.user?.exercise_interests || []).map((interest) => {
+                    // Remove everything after the first space and convert to uppercase
+                    const categoryName = interest.name.split(' ')[0].toUpperCase();
+                    return categoryName;
+                }));
             } else {
                 const errorData = await response.json();
                 setError(errorData.error);
