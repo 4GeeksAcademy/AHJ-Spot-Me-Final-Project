@@ -129,7 +129,8 @@ const UserProfile = () => {
                                     value={formData.name}
                                     onChange={handleChange}
                                     required
-                                />
+                                    // required
+                            />
                             </label>
                             <label>
                                 Age:

@@ -1,40 +1,51 @@
-import React, { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
+import React, { useState, useEffect, useContext } from "react";
+import { Context } from "../store/appContext";
+import { Link, useNavigate } from "react-router-dom";
 import "../../styles/navbar.css";
 import logo from "../../img/logo.png";
-
 const Navbar = () => {
+    const { store, actions } = useContext(Context);
     const [isMenuOpen, setIsMenuOpen] = useState(false);
-    const [isLoggedIn, setIsLoggedIn] = useState(false);
-
+    // const [isLoggedIn, setIsLoggedIn] = useState(false);
+    const navigate = useNavigate();
     useEffect(() => {
         // Check if the user is logged in by looking for the token in localStorage
-        const token = localStorage.getItem("access_token");
-        setIsLoggedIn(!!token); // Update the `isLoggedIn` state based on token presence
+        // const token = localStorage.getItem("authToken"); // Updated token name for consistency
+        const token = store.token;
+        // setIsLoggedIn(!!token); // Update the `isLoggedIn` state based on token presence
     }, []);
-
     const toggleMenu = () => {
         setIsMenuOpen((prev) => !prev);
     };
-
-    const handleLogout = () => {
-        localStorage.removeItem("access_token"); // Clear the access token
-        setIsLoggedIn(false); // Update login state
-        window.location.href = "/login"; // Redirect to login page
+    // const handleLogout = () => {
+    //     actions.logout(); // Clear the auth token
+    //     setIsLoggedIn(false); // Update login state
+    //     window.location.href = "/login"; // Redirect to login page
+    // };
+    const handleLogout = async () => {
+        try {
+            const success = await actions.logout();
+            if (success) {
+                // setIsLoggedIn(false);
+                navigate("/login");
+            }
+        } catch (error) {
+            console.error("Error during logout:", error);
+        }
     };
-
     useEffect(() => {
         const handleResize = () => {
             if (window.innerWidth > 768) {
                 setIsMenuOpen(false);
             }
         };
-
         window.addEventListener("resize", handleResize);
         return () => {
             window.removeEventListener("resize", handleResize);
         };
     }, []);
+
+    const isLoggedIn = !!localStorage.getItem("authToken") || !!localStorage.getItem("token");
 
     return (
         <nav className="navbar navbar-expand-lg">
@@ -44,7 +55,6 @@ const Navbar = () => {
                     <Link to="/" className="navbar-brand">
                         <img src={logo} alt="SpotMe Logo" className="navbar-logo" />
                     </Link>
-
                     {/* Hamburger menu */}
                     <button
                         className={`navbar-toggler ${isMenuOpen ? "active" : ""}`}
@@ -53,7 +63,6 @@ const Navbar = () => {
                     >
                         <span className="navbar-toggler-icon"></span>
                     </button>
-
                     {/* Navbar items aligned to the right */}
                     <div
                         className={`collapse navbar-collapse ${isMenuOpen ? "show" : ""}`}
@@ -65,7 +74,6 @@ const Navbar = () => {
                             <li className="nav-item">
                                 <Link to="/contact" className="nav-link">Contact Us</Link>
                             </li>
-
                             {isLoggedIn ? (
                                 <>
                                     <li className="nav-item">
@@ -103,5 +111,4 @@ const Navbar = () => {
         </nav>
     );
 };
-
 export default Navbar;
