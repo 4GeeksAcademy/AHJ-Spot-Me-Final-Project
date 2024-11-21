@@ -2,22 +2,22 @@
     max-width: 800px;
     margin: 0 auto;
     padding: 20px;
-    color: #f0f0f0;
 }
 
 .spotter-profiles h1 {
     text-align: center;
-    color: #00c2c7;
+    color: #00c0c7be;
 }
 
 .filters {
     display: flex;
     flex-wrap: wrap;
     gap: 20px;
-    background-color: #2a2a2a;
+    background-color: #f5f5f5; /* Light orange color */
     padding: 20px;
     border-radius: 5px;
     margin-bottom: 20px;
+    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
 }
 
 .filter-group {
@@ -26,7 +26,7 @@
 
 .filter-group label {
     font-size: 1rem;
-    color: #00c2c7;
+    color: #00796b; /* Teal color for labels */
 }
 
 .filter-group input,
@@ -34,14 +34,34 @@
     width: 100%;
     padding: 8px;
     margin-top: 5px;
-    background-color: #333333;
-    border: 1px solid #555555;
+    background-color: #FFF5E8; /* Slightly lighter orange */
+    border: 1px solid #525252; /* Orange border */
     border-radius: 5px;
-    color: #f0f0f0;
+    color: #333333;
+}
+
+.filter-group input:focus,
+.filter-group select:focus {
+    border-color: #E67B2F; /* Darker orange on focus */
+    outline: none;
 }
 
 .profile-cards {
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: 20px;
+}
+.btn-view-profile {
+    background-color: #00c2c7;
+    color: #ffffff;
+    padding: 8px 16px;
+    border: none;
+    border-radius: 5px;
+    margin-left: 10px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.btn-view-profile:hover {
+    background-color: #019ba0;
 }
