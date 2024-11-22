@@ -64,6 +64,7 @@ const UserProfile = () => {
     const fetchUserData = async () => {
         try {
             const token = await store.token;
+            // const response = await fetch(`${process.env.BACKEND_URL}/api/user-profile`, {
             const response = await fetch(`${process.env.BACKEND_URL}/api/profile`, {
                 method: "GET",
                 headers: {
@@ -182,6 +183,76 @@ const UserProfile = () => {
     //     } catch (error) {
     //         setError("Error updating profile");
     //         console.error("Error updating profile:", error);
+    //     }
+    // };
+
+    // const handleSave = async () => {
+    //     try {
+    //         // Validate required fields
+    //         if (!formData.name || !formData.gender || !formData.city || !formData.state) {
+    //             setError("Please fill in all required fields");
+    //             return;
+    //         }
+
+    //         // Format exercise interests into the expected format
+    //         const formattedInterests = selectedInterests.map(interest => ({
+    //             name: exerciseCategories.find(cat => cat.value === interest)?.label || interest
+    //         }));
+
+    //         // Format workout schedules into the expected format
+    //         const formattedSchedules = selectedDays.flatMap(day =>
+    //             selectedTimes.map(time => ({
+    //                 day_of_week: day,
+    //                 time_slot: time
+    //             }))
+    //         );
+
+    //         // Create the request body with proper data formatting
+    //         const requestBody = {
+    //             name: formData.name.trim(),
+    //             age: formData.age ? parseInt(formData.age, 10) : null,
+    //             bio: formData.bio ? formData.bio.trim() : "",
+    //             gender: formData.gender,
+    //             city: formData.city.trim(),
+    //             state: formData.state.trim(),
+    //             exercise_interests: formattedInterests,
+    //             workout_schedules: formattedSchedules
+    //         };
+
+    //         // Log the request body for debugging
+    //         console.log('Sending request body:', requestBody);
+
+    //         const token = await store.token;
+    //         if (!token) {
+    //             throw new Error("No authentication token found");
+    //         }
+
+    //         // const response = await fetch(`${process.env.BACKEND_URL}/api/profile`, {
+    //         const response = await fetch(`${process.env.BACKEND_URL}/api/edit-profile`, {
+    //             method: "PUT",
+    //             headers: {
+    //                 "Authorization": `Bearer ${token}`,
+    //                 "Content-Type": "application/json"
+    //             },
+    //             body: JSON.stringify(requestBody)
+    //         });
+
+    //         if (!response.ok) {
+    //             const errorData = await response.json();
+    //             throw new Error(errorData.error || `HTTP error! status: ${response.status}`);
+    //         }
+
+    //         const data = await response.json();
+    //         if (data.user) {
+    //             setProfile(data.user);
+    //             setIsEditing(false);
+    //             setError(null);
+    //         } else {
+    //             throw new Error("Invalid response format from server");
+    //         }
+    //     } catch (error) {
+    //         console.error("Error updating profile:", error);
+    //         setError(error.message || "Error updating profile");
     //     }
     // };
 
