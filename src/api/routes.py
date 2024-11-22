@@ -483,12 +483,13 @@ def get_user_profile():
 
 @api.route('/users', methods=['GET'])
 def get_all_users():
-    users= User.query.all()
-    serialized_users = [user.serialize() for user in users]
+    users = User.query.all()
+    # Make sure to include relations by passing include_relations=True
+    serialized_users = [user.serialize(include_relations=True) for user in users]
     response_body = {
-        "message": "Here's a list of all users", "users": serialized_users 
+        "message": "Here's a list of all users", 
+        "users": serialized_users 
     }
-
     return jsonify(response_body), 200
 
 

@@ -152,6 +152,21 @@ const SpotterProfiles = () => {
             <div className="profile-cards">
                 {filteredSpotters.length > 0 ? (
                     filteredSpotters.map((spotter, index) => (
+                        // <SpotterCard
+                        //     key={index}
+                        //     spotter={{
+                        //         id: spotter.id,
+                        //         name: spotter.name || "Anonymous",
+                        //         age: spotter.age || "N/A",
+                        //         gender: spotter.gender || "Unknown",
+                        //         city: spotter.city || "",
+                        //         state: spotter.state || "",
+                        //         fitnessLevel: spotter.fitness_level || "Not Specified",
+                        //         exerciseInterests: spotter.exercise_interests || [],
+                        //         workoutSchedules: spotter.workout_schedules || [],
+                        //         profileImage: spotter.profile_image || null,
+                        //     }}
+                        // />
                         <SpotterCard
                             key={index}
                             spotter={{
@@ -161,9 +176,8 @@ const SpotterProfiles = () => {
                                 gender: spotter.gender || "Unknown",
                                 city: spotter.city || "",
                                 state: spotter.state || "",
-                                fitnessLevel: spotter.fitness_level || "Not Specified",
-                                exerciseInterests: spotter.exercise_interests || [],
-                                workoutSchedules: spotter.workout_schedules || [],
+                                exercise_interests: spotter.exercise_interests || [],
+                                workout_schedules: spotter.workout_schedules || [],
                                 profileImage: spotter.profile_image || null,
                             }}
                         />

@@ -9,15 +9,30 @@ const getState = ({ getStore, getActions, setStore }) => {
 			message: null
 		},
 		actions: {
+			// getAllUsers: () => {
+			// 	fetch(process.env.BACKEND_URL + "/api/users")
+			// 		.then(resp => resp.json())
+			// 		.then(data => {
+			// 			console.log(data)
+			// 			setStore({ users: data.users })
+			// 		})
+			// 		.catch(error => console.log(error))
+
+			// },
 			getAllUsers: () => {
-				fetch(process.env.BACKEND_URL + "/api/users")
+				const token = localStorage.getItem("token");
+				fetch(process.env.BACKEND_URL + "/api/users", {
+					headers: {
+						"Authorization": `Bearer ${token}`,
+						"Content-Type": "application/json"
+					}
+				})
 					.then(resp => resp.json())
 					.then(data => {
-						console.log(data)
+						console.log("User data:", data); // For debugging
 						setStore({ users: data.users })
 					})
 					.catch(error => console.log(error))
-
 			},
 			signup: async (formData) => {
 				try {
@@ -231,11 +246,11 @@ const getState = ({ getStore, getActions, setStore }) => {
 				}
 			},
 
-			removeFavorite: async (userId)=> {
+			removeFavorite: async (userId) => {
 				try {
-					const token=localStorage.getItem("token");
+					const token = localStorage.getItem("token");
 					const response = await fetch(`${process.env.BACKEND_URL}/api/unlike/${userId}`, {
-						method: "DELETE", 
+						method: "DELETE",
 						headers: {
 							"Authorization": `Bearer ${token}`
 						}
@@ -251,7 +266,7 @@ const getState = ({ getStore, getActions, setStore }) => {
 					return false
 				}
 			},
-			
+
 
 			getLikedUsers: async () => {
 				try {

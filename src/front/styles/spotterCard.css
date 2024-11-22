@@ -77,3 +77,73 @@
     border-radius: 50%; /* Makes it circular */
     margin-bottom: 10px;
 }
+
+
+
+
+
+/* 
+.interests-section,
+.schedule-section {
+    margin: 15px 0;
+}
+
+.section-title {
+    font-size: 1.1em;
+    font-weight: 600;
+    margin-bottom: 8px;
+}
+
+.interests-list,
+.schedule-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.interest-item,
+.schedule-item {
+    background-color: #f5f5f5;
+    border-radius: 4px;
+    padding: 4px 8px;
+    margin: 4px 0;
+    font-size: 0.9em;
+}
+
+.schedule-item strong {
+    color: #666;
+} */
+
+
+
+
+.interests-section,
+.schedule-section {
+    margin: 15px 0;
+    padding: 10px;
+    background-color: #f8f9fa;
+    border-radius: 8px;
+}
+
+.section-title {
+    color: #00796b;
+    margin-bottom: 10px;
+    font-weight: 600;
+}
+
+.interests-list,
+.schedule-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.interest-item,
+.schedule-item {
+    background-color: white;
+    border: 1px solid #e0e0e0;
+    border-radius: 4px;
+    padding: 6px 12px;
+    margin: 4px 0;
+    font-size: 0.9em;
+}
