@@ -1,6 +1,39 @@
 import React, { useState, useEffect, useContext } from "react";
 import { Context } from "../store/appContext.js";
 import "../../styles/userProfile.css";
+import userIcon from "../../img/user_icon.png"
+
+const exerciseCategories = [
+    { label: "Strength Training", value: "STRENGTH" },
+    { label: "Cardio", value: "CARDIO" },
+    { label: "Crossfit", value: "CROSSFIT" },
+    { label: "Functional Training", value: "FUNCTIONAL" },
+    { label: "Powerlifting", value: "POWERLIFTING" },
+    { label: "Bodybuilding", value: "BODYBUILDING" },
+    { label: "HIIT", value: "HIIT" },
+    { label: "Yoga", value: "YOGA" },
+    { label: "Calisthenics", value: "CALISTHENICS" },
+];
+
+const daysOfWeek = [
+    { label: "Monday", value: "MONDAY" },
+    { label: "Tuesday", value: "TUESDAY" },
+    { label: "Wednesday", value: "WEDNESDAY" },
+    { label: "Thursday", value: "THURSDAY" },
+    { label: "Friday", value: "FRIDAY" },
+    { label: "Saturday", value: "SATURDAY" },
+    { label: "Sunday", value: "SUNDAY" },
+];
+
+const timeOfDay = [
+    { label: "Early Morning (5:00 AM - 8:00 AM)", value: "EARLY_MORNING" },
+    { label: "Morning (8:00 AM - 11:00 AM)", value: "MORNING" },
+    { label: "Midday (11:00 AM - 2:00 PM)", value: "MIDDAY" },
+    { label: "Afternoon (2:00 PM - 5:00 PM)", value: "AFTERNOON" },
+    { label: "Evening (5:00 PM - 8:00 PM)", value: "EVENING" },
+    { label: "Night (8:00 PM - 11:00 PM)", value: "NIGHT" },
+];
+
 
 const UserProfile = () => {
     const { store, actions } = useContext(Context);
@@ -8,18 +41,21 @@ const UserProfile = () => {
         name: "",
         age: "",
         bio: "",
-        gender: null,
+        gender: "",
         email: "",
         city: "",
         state: "",
         exercise_interests: [],
-        gym_preferences: [],
+        workout_schedules: [],
         profile_image: null,
     });
-
     const [isEditing, setIsEditing] = useState(false);
     const [formData, setFormData] = useState(profile);
     const [error, setError] = useState(null);
+    const [selectedDays, setSelectedDays] = useState([]);
+    const [selectedTimes, setSelectedTimes] = useState([]);
+    const [selectedInterests, setSelectedInterests] = useState([]);
+
 
     useEffect(() => {
         fetchUserData();
@@ -28,6 +64,7 @@ const UserProfile = () => {
     const fetchUserData = async () => {
         try {
             const token = await store.token;
+            // const response = await fetch(`${process.env.BACKEND_URL}/api/user-profile`, {
             const response = await fetch(`${process.env.BACKEND_URL}/api/profile`, {
                 method: "GET",
                 headers: {
@@ -40,6 +77,14 @@ const UserProfile = () => {
                 const data = await response.json();
                 setProfile(data.user);
                 setFormData(data.user);
+                setSelectedDays((data.user?.workout_schedules || []).map((item) => item.day_of_week));
+                setSelectedTimes((data.user?.workout_schedules || []).map((item) => item.time_slot));
+                // setSelectedInterests((data.user?.exercise_interests || []).map((interest) => interest.name));
+                setSelectedInterests((data.user?.exercise_interests || []).map((interest) => {
+                    // Remove everything after the first space and convert to uppercase
+                    const categoryName = interest.name.split(' ')[0].toUpperCase();
+                    return categoryName;
+                }));
             } else {
                 const errorData = await response.json();
                 setError(errorData.error);
@@ -58,8 +103,171 @@ const UserProfile = () => {
         }));
     };
 
+    const handleCheckboxChange = (type, value) => {
+        if (type === "days") {
+            setSelectedDays((prev) =>
+                prev.includes(value) ? prev.filter((item) => item !== value) : [...prev, value]
+            );
+        } else if (type === "times") {
+            setSelectedTimes((prev) =>
+                prev.includes(value) ? prev.filter((item) => item !== value) : [...prev, value]
+            );
+        } else if (type === "interests") {
+            setSelectedInterests((prev) =>
+                prev.includes(value) ? prev.filter((item) => item !== value) : [...prev, value]
+            );
+        }
+    };
+
+    // const handleSave = async () => {
+    //     try {
+    //         const token = await store.token;
+    //         const response = await fetch(`${process.env.BACKEND_URL}/api/edit-profile`, {
+    //             method: "PUT",
+    //             headers: {
+    //                 Authorization: `Bearer ${token}`,
+    //                 "Content-Type": "application/json",
+    //             },
+    //             body: JSON.stringify({
+    //                 name: formData.name,
+    //                 bio: formData.bio,
+    //                 age: parseInt(formData.age),
+    //                 gender: formData.gender,
+    //                 city: formData.city,
+    //                 state: formData.state,
+    //             }),
+    //         });
+
+    //         const data = await response.json();
+    //         if (response.ok && data.user) {
+    //             setProfile(data.user);
+    //             setIsEditing(false);
+    //             setError(null);
+    //         } else {
+    //             const errorData = await response.json();
+    //             setError(errorData.error);
+    //         }
+    //     } catch (error) {
+    //         setError("Error updating profile");
+    //         console.error("Error updating profile:", error);
+    //     }
+    // };
+
+    // ---------------------
+    // const handleSave = async () => {
+    //     try {
+    //         const token = await store.token;
+    //         const response = await fetch(`${process.env.BACKEND_URL}/api/edit-profile`, {
+    //             method: "PUT",
+    //             headers: {
+    //                 Authorization: `Bearer ${token}`,
+    //                 "Content-Type": "application/json",
+    //             },
+    //             body: JSON.stringify({
+    //                 ...formData,
+    //                 workout_schedules: selectedDays.flatMap((day) =>
+    //                     selectedTimes.map((time) => ({ day_of_week: day, time_slot: time }))
+    //                 ),
+    //                 exercise_interests: selectedInterests,
+    //             }),
+    //         });
+
+    //         const data = await response.json();
+    //         if (response.ok && data.user) {
+    //             setProfile(data.user);
+    //             setIsEditing(false);
+    //             setError(null);
+    //         } else {
+    //             setError(data.error || "Failed to update profile");
+    //         }
+    //     } catch (error) {
+    //         setError("Error updating profile");
+    //         console.error("Error updating profile:", error);
+    //     }
+    // };
+
+    // const handleSave = async () => {
+    //     try {
+    //         // Validate required fields
+    //         if (!formData.name || !formData.gender || !formData.city || !formData.state) {
+    //             setError("Please fill in all required fields");
+    //             return;
+    //         }
+
+    //         // Format exercise interests into the expected format
+    //         const formattedInterests = selectedInterests.map(interest => ({
+    //             name: exerciseCategories.find(cat => cat.value === interest)?.label || interest
+    //         }));
+
+    //         // Format workout schedules into the expected format
+    //         const formattedSchedules = selectedDays.flatMap(day =>
+    //             selectedTimes.map(time => ({
+    //                 day_of_week: day,
+    //                 time_slot: time
+    //             }))
+    //         );
+
+    //         // Create the request body with proper data formatting
+    //         const requestBody = {
+    //             name: formData.name.trim(),
+    //             age: formData.age ? parseInt(formData.age, 10) : null,
+    //             bio: formData.bio ? formData.bio.trim() : "",
+    //             gender: formData.gender,
+    //             city: formData.city.trim(),
+    //             state: formData.state.trim(),
+    //             exercise_interests: formattedInterests,
+    //             workout_schedules: formattedSchedules
+    //         };
+
+    //         // Log the request body for debugging
+    //         console.log('Sending request body:', requestBody);
+
+    //         const token = await store.token;
+    //         if (!token) {
+    //             throw new Error("No authentication token found");
+    //         }
+
+    //         // const response = await fetch(`${process.env.BACKEND_URL}/api/profile`, {
+    //         const response = await fetch(`${process.env.BACKEND_URL}/api/edit-profile`, {
+    //             method: "PUT",
+    //             headers: {
+    //                 "Authorization": `Bearer ${token}`,
+    //                 "Content-Type": "application/json"
+    //             },
+    //             body: JSON.stringify(requestBody)
+    //         });
+
+    //         if (!response.ok) {
+    //             const errorData = await response.json();
+    //             throw new Error(errorData.error || `HTTP error! status: ${response.status}`);
+    //         }
+
+    //         const data = await response.json();
+    //         if (data.user) {
+    //             setProfile(data.user);
+    //             setIsEditing(false);
+    //             setError(null);
+    //         } else {
+    //             throw new Error("Invalid response format from server");
+    //         }
+    //     } catch (error) {
+    //         console.error("Error updating profile:", error);
+    //         setError(error.message || "Error updating profile");
+    //     }
+    // };
+
     const handleSave = async () => {
         try {
+            // Create the request body, converting age to integer
+            const requestBody = {
+                ...formData,
+                age: formData.age ? parseInt(formData.age, 10) : null,  // Convert to integer
+                workout_schedules: selectedDays.flatMap((day) =>
+                    selectedTimes.map((time) => ({ day_of_week: day, time_slot: time }))
+                ),
+                exercise_interests: selectedInterests,
+            };
+
             const token = await store.token;
             const response = await fetch(`${process.env.BACKEND_URL}/api/edit-profile`, {
                 method: "PUT",
@@ -67,14 +275,7 @@ const UserProfile = () => {
                     Authorization: `Bearer ${token}`,
                     "Content-Type": "application/json",
                 },
-                body: JSON.stringify({
-                    name: formData.name,
-                    bio: formData.bio,
-                    age: parseInt(formData.age),
-                    gender: formData.gender,
-                    city: formData.city,
-                    state: formData.state,
-                }),
+                body: JSON.stringify(requestBody),
             });
 
             const data = await response.json();
@@ -83,8 +284,7 @@ const UserProfile = () => {
                 setIsEditing(false);
                 setError(null);
             } else {
-                const errorData = await response.json();
-                setError(errorData.error);
+                setError(data.error || "Failed to update profile");
             }
         } catch (error) {
             setError("Error updating profile");
@@ -92,20 +292,17 @@ const UserProfile = () => {
         }
     };
 
-    const avatarUrl =
-        profile.gender === "male"
-            ? "https://avatar.iran.liara.run/public/boy"
-            : "https://avatar.iran.liara.run/public/girl";
+    const getAvatarUrl = (gender) => {
+        switch (gender?.toLowerCase()) {
+            case "male":
+                return "https://avatar.iran.liara.run/public/boy";
+            case "female":
+                return "https://avatar.iran.liara.run/public/girl";
+            default:
+                return userIcon;
+        }
+    };
 
-            if (error) {
-                return (
-                    <div className="error-container">
-                        <h2>Error updating profile!</h2>
-                        <p>Please refresh the page and try again.</p>
-                    </div>
-                );
-            }
-            
 
     return (
         <div className="user-profile-page">
@@ -117,7 +314,7 @@ const UserProfile = () => {
             {/* User Profile Card */}
             <div className="user-profile-container">
                 <div className="user-profile">
-                    <img src={profile.profile_image || avatarUrl} alt="User Avatar" className="user-avatar" />
+                    <img src={profile.profile_image || getAvatarUrl(profile.gender)} alt="User Avatar" className="user-avatar" />
                     <h2 className="profile-heading">Your Profile</h2>
                     {isEditing ? (
                         <div className="profile-form">
@@ -129,6 +326,7 @@ const UserProfile = () => {
                                     value={formData.name}
                                     onChange={handleChange}
                                     required
+                                // required
                                 />
                             </label>
                             <label>
@@ -141,6 +339,7 @@ const UserProfile = () => {
                                     min="18"
                                     max="120"
                                     required
+                                    step="1"
                                 />
                             </label>
                             <label>
@@ -153,8 +352,8 @@ const UserProfile = () => {
                                 />
                             </label>
                             <label>
-                                Gender:
-                                <select name="gender" value={formData.gender} onChange={handleChange}>
+                                Gender*:
+                                <select name="gender" value={formData.gender} aria-required="true" onChange={handleChange}>
                                     <option value="prefer_not_to_say">Please pick an option</option>
                                     <option value="male">Male</option>
                                     <option value="female">Female</option>
@@ -182,6 +381,62 @@ const UserProfile = () => {
                                     required
                                 />
                             </label>
+
+                            {/* Exercise Interests */}
+                            <div className="section">
+                                <h3>Exercise Interests</h3>
+                                <div className="checkbox-group">
+                                    {exerciseCategories.map((category) => (
+                                        <div className="checkbox-item" key={category.value}>
+                                            <label>
+                                                <input
+                                                    type="checkbox"
+                                                    checked={selectedInterests.includes(category.value)}
+                                                    onChange={() => handleCheckboxChange("interests", category.value)}
+                                                />
+                                                {category.label}
+                                            </label>
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+
+                            {/* Workout Schedule */}
+                            <div className="section">
+                                <h3>Workout Schedule</h3>
+                                <h4>Days of the Week</h4>
+                                <div className="checkbox-group">
+                                    {daysOfWeek.map((day) => (
+                                        <div className="checkbox-item" key={day.value}>
+                                            <label>
+                                                <input
+                                                    type="checkbox"
+                                                    checked={selectedDays.includes(day.value)}
+                                                    onChange={() => handleCheckboxChange("days", day.value)}
+                                                />
+                                                {day.label}
+                                            </label>
+                                        </div>
+                                    ))}
+                                </div>
+
+                                <h4>Time of Day</h4>
+                                <div className="checkbox-group">
+                                    {timeOfDay.map((time) => (
+                                        <div className="checkbox-item" key={time.value}>
+                                            <label>
+                                                <input
+                                                    type="checkbox"
+                                                    checked={selectedTimes.includes(time.value)}
+                                                    onChange={() => handleCheckboxChange("times", time.value)}
+                                                />
+                                                {time.label}
+                                            </label>
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+
                             <div className="button-group">
                                 <button onClick={handleSave} className="btn btn-primary">
                                     Save
@@ -217,7 +472,22 @@ const UserProfile = () => {
                             <p>
                                 <strong>State:</strong> {profile.state}
                             </p>
-                            {profile.exercise_interests && profile.exercise_interests.length > 0 && (
+                            {/* In the non-editing view, after the basic info */}
+                            <p><strong>Exercise Interests:</strong></p>
+                            <ul>
+                                {(profile.exercise_interests || []).map((interest) => (
+                                    <li key={interest.id}>{interest.name}</li>
+                                ))}
+                            </ul>
+                            <p><strong>Workout Schedule:</strong></p>
+                            <ul>
+                                {selectedDays.map((day, index) => (
+                                    <li key={index}>
+                                        {day}: {selectedTimes.join(", ")}
+                                    </li>
+                                ))}
+                            </ul>
+                            {/* {profile.exercise_interests && profile.exercise_interests.length > 0 && (
                                 <p>
                                     <strong>Exercise Interests:</strong>{" "}
                                     {profile.exercise_interests.map((interest) => interest.name).join(", ")}
@@ -228,7 +498,7 @@ const UserProfile = () => {
                                     <strong>Preferred Gyms:</strong>{" "}
                                     {profile.gym_preferences.map((gym) => gym.name).join(", ")}
                                 </p>
-                            )}
+                            )} */}
                             <button onClick={() => setIsEditing(true)} className="btn btn-primary">
                                 Edit Profile
                             </button>

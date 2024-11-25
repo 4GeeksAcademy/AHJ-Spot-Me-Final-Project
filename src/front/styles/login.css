@@ -71,8 +71,29 @@
     background-color: #5a6268;
 }
 
+/* Divider styling */
+.divider {
+    display: flex;
+    align-items: center;
+    text-align: center;
+    margin: 20px 0;
+}
+
+.divider::before,
+.divider::after {
+    content: '';
+    flex: 1;
+    border-bottom: 1px solid #e0e0e0;
+}
+
+.divider span {
+    padding: 0 10px;
+    color: #6c757d;
+    font-size: 14px;
+}
+
 /* Style the Google sign-in button */
-.google-signin-button {
+/* .google-signin-button {
     width: 100%;
     margin-top: 10px;
     display: flex;
@@ -85,6 +106,27 @@
     border-radius: 5px;
     cursor: pointer;
     transition: background-color 0.3s ease;
+} */
+ .google-signin-button {
+    width: 100%;
+    margin-top: 15px !important;
+    margin-bottom: 15px !important;
+}
+
+.google-signin-button > div,
+.google-signin-button > div > iframe {
+    width: 100% !important;
+}
+
+.google-signin-button > div > div > div {
+    border: 1px solid #333 !important;
+}
+
+/* Custom styling for the Google Sign In button */
+.google-signin-button > div > iframe > div {
+    border: 1px solid #333 !important; /* Darker border color */
+    border-radius: 4px !important;
+    box-shadow: none !important;
 }
 
 .google-signin-button:hover {
